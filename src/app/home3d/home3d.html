@@ -1,0 +1,118 @@
+<div class="layout">
+  <section class="board">
+    <header class="board__header">
+      <div class="board__title">
+        <div class="board__pill">3D</div>
+        <div>
+          <div class="board__h">Home Model</div>
+          <div class="board__sub">Rotate • Zoom • Click room</div>
+        </div>
+      </div>
+
+      <div class="board__kpis">
+        <div class="kpi">
+          <div class="kpi__label">Total</div>
+          <div class="kpi__value">{{ kpis.totalW }} W</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi__label">Today</div>
+          <div class="kpi__value">{{ kpis.todayKwh }} kWh</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi__label">Eco</div>
+          <div class="kpi__value">{{ kpis.ecoScore }}</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="board__stage" #canvasHost></div>
+  </section>
+
+  <aside class="panel">
+    <div class="rooms">
+      <div class="rooms__title">Rooms</div>
+
+      <button
+        class="room-btn"
+        *ngFor="let room of rooms"
+        [class.active]="room.id === currentRoomId"
+        (click)="selectRoom(room)"
+      >
+        {{ room.name }}
+      </button>
+    </div>
+
+    <div class="panel__body">
+      <div class="row">
+        <div class="label">Name</div>
+        <div class="value">{{ panel?.name }}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Type</div>
+        <div class="value">{{ panel?.type }}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Status</div>
+        <div class="value">{{ panel?.status }}</div>
+      </div>
+
+      <!-- ===== COLOR PICKER (MOCK) ===== -->
+      <!-- <div class="color-picker">
+        <div class="color-picker__title">
+          Lamp Color
+        </div>
+
+        <!-- круг -->
+        <!-- <div class="color-wheel">
+          <div class="color-wheel__dot"></div>
+        </div> -->
+
+        <!-- быстрые цвета -->
+        <!-- <div class="color-palette">
+          <span style="--c:#ffffff"></span>
+          <span style="--c:#60a5fa"></span>
+          <span style="--c:#22c55e"></span>
+          <span style="--c:#f59e0b"></span>
+          <span style="--c:#ef4444"></span>
+          <span style="--c:#a855f7"></span>
+        </div>
+      </div> -->
+
+      <!-- ===== TEMPERATURE CONTROL (MOCK) ===== -->
+      <div class="temp-control">
+        <div class="temp-control__header">
+          <div class="temp-title">Temperature</div>
+          <div class="temp-unit">°C</div>
+        </div>
+
+        <div class="temp-display">
+          <span class="temp-value">22</span>
+        </div>
+
+        <!-- круговой контрол -->
+        <div class="temp-ring">
+          <div class="temp-ring__inner">
+            <div class="temp-ring__indicator"></div>
+          </div>
+        </div>
+
+        <!-- min / max -->
+        <div class="temp-range">
+          <span>16°</span>
+          <span>30°</span>
+        </div>
+
+        <!-- presets -->
+        <div class="temp-presets">
+          <button class="preset">Eco</button>
+          <button class="preset active">Comfort</button>
+          <button class="preset">Warm</button>
+        </div>
+      </div>
+
+
+    </div>
+  </aside>
+</div>

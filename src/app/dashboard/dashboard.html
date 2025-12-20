@@ -1,0 +1,49 @@
+<div class="dashboard">
+
+  <!-- KPI SUMMARY -->
+  <div class="summary-grid">
+    <mat-card
+      class="summary-card"
+      *ngFor="let item of summary"
+      @fadeUp
+    >
+      <div class="card-header">
+        <span class="card-icon">{{ item.icon }}</span>
+        <span class="card-title">{{ item.title }}</span>
+      </div>
+
+      <div
+        class="card-value"
+        [class.eco]="item.title === 'Eco Score'"
+      >
+        {{ item.value }}
+      </div>
+
+      <div class="card-subtitle">{{ item.subtitle }}</div>
+    </mat-card>
+  </div>
+
+  <!-- ENERGY CHART -->
+  <mat-card class="chart-card" @fadeUp>
+    <div class="chart-header">Energy Consumption (Today)</div>
+
+    <div class="chart-container">
+      <canvas id="energyChart"></canvas>
+    </div>
+
+    <div class="chart-footer">
+      Peak consumption observed between <strong>17:00 – 19:00</strong>
+    </div>
+  </mat-card>
+
+  <!-- TOP CONSUMERS -->
+  <mat-card class="consumers-card" @fadeUp>
+    <div class="consumers-title">Top Energy Consumers</div>
+
+    <div class="consumer-row" *ngFor="let device of topConsumers">
+      <span class="device-name">{{ device.name }}</span>
+      <span class="device-energy">{{ device.energy }}</span>
+    </div>
+  </mat-card>
+
+</div>

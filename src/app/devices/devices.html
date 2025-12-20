@@ -1,0 +1,44 @@
+<div class="devices">
+
+  <h1 class="page-title">Devices</h1>
+
+  <div *ngFor="let room of devicesByRoom | keyvalue">
+
+    <h2 class="room-title">{{ room.key }}</h2>
+
+    <div class="devices-grid">
+
+      <div class="device-card" *ngFor="let device of room.value">
+
+        <!-- TOP -->
+        <div class="device-top">
+          <div class="device-header">
+            <span class="device-icon">{{ device.icon }}</span>
+            <span class="device-name">{{ device.name }}</span>
+          </div>
+
+          <span class="status" [class.on]="device.active">
+            {{ device.active ? 'ON' : 'OFF' }}
+          </span>
+        </div>
+
+        <!-- INFO -->
+        <div class="device-info">
+          <span class="power">{{ device.power }} W</span>
+        </div>
+
+        <!-- BUTTON -->
+        <button
+          class="toggle-btn"
+          (click)="toggleDevice(device)"
+        >
+          {{ device.active ? 'Turn off' : 'Turn on' }}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

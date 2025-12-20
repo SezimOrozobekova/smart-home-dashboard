@@ -1,0 +1,23 @@
+<mat-toolbar class="app-toolbar">
+
+  <div class="left">
+    <span class="logo">⚡ Smart Home Energy</span>
+  </div>
+
+  <div class="nav">
+    <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      Dashboard
+    </a>
+    <a mat-button routerLink="/devices" routerLinkActive="active">
+      Devices
+    </a>
+    <a mat-button routerLink="/home3d" routerLinkActive="active">
+      3D Home
+    </a>
+
+    <a mat-button routerLink="/insights" routerLinkActive="active">
+      Insights
+    </a>
+  </div>
+
+</mat-toolbar>

@@ -1,0 +1,32 @@
+<div class="insights">
+
+  <h2 class="page-title">Energy Insights</h2>
+  <p class="page-subtitle">
+    Automated analysis of household energy consumption patterns
+  </p>
+
+  <div class="insights-grid">
+    <mat-card
+      class="insight-card"
+      *ngFor="let insight of insights"
+      [class.warning]="insight.level === 'warning'"
+      [class.info]="insight.level === 'info'"
+      [class.success]="insight.level === 'success'"
+    >
+      <div class="insight-header">
+        <span class="indicator"></span>
+        <span class="insight-title">{{ insight.title }}</span>
+      </div>
+
+      <div class="insight-description">
+        {{ insight.description }}
+      </div>
+
+      <div class="recommendation">
+        <strong>Recommendation:</strong>
+        {{ insight.recommendation }}
+      </div>
+    </mat-card>
+  </div>
+
+</div>
