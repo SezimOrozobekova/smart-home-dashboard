@@ -43,31 +43,25 @@
         <div class="value">{{ panel.status }}</div>
       </div>
 
-      <!-- ===== FRIDGE CONTROLS ===== -->
+      <!-- FRIDGE -->
       <div *ngIf="isFridgeSelected" class="temp-control">
-        <div class="temp-control__header">
-          <div class="temp-title">Fridge temperature</div>
-          <div class="temp-unit">°C</div>
-        </div>
+        <h3>Fridge temperature</h3>
+        <div class="temp-value">{{ fridgeTemperature }} °C</div>
+      </div>
 
-        <div class="temp-display">
-          <div class="temp-value">
-            {{ fridgeTemperature }}
-          </div>
-        </div>
+      <!-- STOVE -->
+      <div *ngIf="isStoveSelected" class="temp-control">
+        <h3>Stove temperature</h3>
+        <div class="temp-value">{{ stoveTemperature }} °C</div>
+      </div>
 
-        <div class="temp-controls">
-          <button (click)="changeFridgeTemp(-1)">−</button>
-          <button (click)="changeFridgeTemp(1)">+</button>
-        </div>
-
-        <div class="temp-range">
-          <span>-18</span>
-          <span>8</span>
+      <!-- KETTLE -->
+      <div *ngIf="isKettleSelected" class="temp-control">
+        <h3>Kettle</h3>
+        <div class="temp-value">
+          {{ kettleTimeLeft }} sec left
         </div>
       </div>
     </div>
-
-
   </aside>
 </div>

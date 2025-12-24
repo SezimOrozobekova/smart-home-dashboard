@@ -4,7 +4,8 @@ import {
   ViewChild,
   AfterViewInit,
   OnDestroy,
-  NgZone
+  NgZone,
+  ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
@@ -12,11 +13,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 type DeviceType =
   | 'room'
-  | 'lamp'
   | 'fridge'
   | 'stove'
   | 'kettle'
-  | 'computer'
   | 'unknown';
 
 type DevicePanel = {
@@ -67,7 +66,10 @@ export class Home3d implements AfterViewInit, OnDestroy {
   private rafId: number | null = null;
   private resizeObs!: ResizeObserver;
 
-  constructor(private zone: NgZone) {}
+  constructor(
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   /* ================= LIFECYCLE ================= */
 
@@ -129,7 +131,6 @@ export class Home3d implements AfterViewInit, OnDestroy {
 
   selectRoom(room: any): void {
     if (room.id === this.currentRoomId) return;
-
     this.clearSelection();
     this.currentRoomId = room.id;
     this.loadRoom(room.file, room.name);
@@ -192,6 +193,7 @@ export class Home3d implements AfterViewInit, OnDestroy {
           type: 'room',
           status: 'Active'
         };
+        this.cdr.detectChanges();
       });
     });
   }
@@ -215,7 +217,6 @@ export class Home3d implements AfterViewInit, OnDestroy {
     this.raycaster.setFromCamera(this.mouse, this.camera);
     const hits = this.raycaster.intersectObjects(this.scene.children, true);
 
-    // 🔥 ВСЕГДА ГАСИМ ВСЁ
     this.clearAllHighlights();
 
     if (hits.length === 0) {
@@ -229,16 +230,16 @@ export class Home3d implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // 🔥 подсвечиваем ТОЛЬКО выбранный
     this.highlightObject(device);
 
     this.zone.run(() => {
       this.selectedObject = device;
       this.panel = {
-        name: device.name,
+        name: device.name || 'Device',
         type: device.userData['type'] ?? 'unknown',
         status: device.userData['isOn'] ? 'ON' : 'OFF'
       };
+      this.cdr.detectChanges(); // 🔥 ВАЖНО
     });
   };
 
@@ -251,6 +252,7 @@ export class Home3d implements AfterViewInit, OnDestroy {
       type: 'unknown',
       status: 'Click a device'
     };
+    this.cdr.detectChanges();
   }
 
   /* ================= HIGHLIGHT ================= */
@@ -261,7 +263,6 @@ export class Home3d implements AfterViewInit, OnDestroy {
 
       const mesh = child as THREE.Mesh;
 
-      // 🔥 КЛОНИРУЕМ МАТЕРИАЛ ОДИН РАЗ
       if (!mesh.userData['_origMaterial']) {
         mesh.userData['_origMaterial'] = mesh.material;
         mesh.material = (mesh.material as THREE.Material).clone();
@@ -278,7 +279,6 @@ export class Home3d implements AfterViewInit, OnDestroy {
       if (!(obj as any).isMesh) return;
 
       const mesh = obj as THREE.Mesh;
-
       if (mesh.userData['_origMaterial']) {
         mesh.material = mesh.userData['_origMaterial'];
         delete mesh.userData['_origMaterial'];
@@ -286,12 +286,10 @@ export class Home3d implements AfterViewInit, OnDestroy {
     });
   }
 
-
   /* ================= HELPERS ================= */
 
   private findDeviceRoot(obj: THREE.Object3D): THREE.Object3D | null {
     let current: THREE.Object3D | null = obj;
-
     while (current) {
       if (current.userData?.['device']) return current;
       current = current.parent;
@@ -314,35 +312,15 @@ export class Home3d implements AfterViewInit, OnDestroy {
   }
 
   get fridgeTemperature(): number {
-    return this.selectedObject!.userData['temperature'];
+    return this.selectedObject?.userData?.['temperature'] ?? 0;
   }
 
   get stoveTemperature(): number {
-    return this.selectedObject!.userData['temperature'];
+    return this.selectedObject?.userData?.['temperature'] ?? 0;
   }
 
   get kettleTimeLeft(): number {
-    return this.selectedObject!.userData['timeLeft'];
-  }
-
-  /* ================= DEVICE ACTIONS ================= */
-
-  changeFridgeTemp(delta: number): void {
-    const d = this.selectedObject!.userData;
-    d['temperature'] = THREE.MathUtils.clamp(
-      d['temperature'] + delta,
-      d['minTemp'],
-      d['maxTemp']
-    );
-  }
-
-  changeStoveTemp(delta: number): void {
-    const d = this.selectedObject!.userData;
-    d['temperature'] = THREE.MathUtils.clamp(
-      d['temperature'] + delta,
-      50,
-      300
-    );
+    return this.selectedObject?.userData?.['timeLeft'] ?? 0;
   }
 
   /* ================= LOOP ================= */
