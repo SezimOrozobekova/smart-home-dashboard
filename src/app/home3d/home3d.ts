@@ -13,6 +13,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 type DeviceType =
   | 'room'
+  | 'lamp'
   | 'fridge'
   | 'stove'
   | 'kettle'
