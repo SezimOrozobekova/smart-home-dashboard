@@ -182,6 +182,25 @@ export class Home3d implements AfterViewInit, OnDestroy {
             timeLeft: 120
           };
         }
+
+        else if (name.includes('lamp') || name.includes('light')) {
+          root.userData['device'] = true;
+          root.userData['type'] = 'lamp';
+          root.userData['isOn'] = true;
+
+          const light = new THREE.PointLight(
+            0xffffff, // цвет
+            1.2,      // интенсивность
+            6         // дистанция
+          );
+
+            light.position.set(0, 0.2, 0); // чуть ниже центра лампы
+            light.castShadow = true;
+
+            root.add(light);
+            root.userData['light'] = light;
+          }
+
       });
 
       this.scene.add(room);
@@ -223,6 +242,33 @@ export class Home3d implements AfterViewInit, OnDestroy {
       this.zone.run(() => this.clearSelection());
       return;
     }
+
+    const clicked = hits[0].object;
+
+    console.group('🟢 CLICK INFO');
+    console.log('Mesh name:', clicked.name);
+    console.log('Mesh type:', clicked.type);
+    console.log('Mesh userData:', clicked.userData);
+    console.log('--- PARENTS ---');
+
+    let p: THREE.Object3D | null = clicked;
+    let level = 0;
+
+    while (p) {
+      console.log(
+        `Level ${level}:`,
+        p.name || '(no name)',
+        '| type:',
+        p.type,
+        '| userData:',
+        p.userData
+      );
+      p = p.parent;
+      level++;
+    }
+
+    console.groupEnd();
+
 
     const device = this.findDeviceRoot(hits[0].object);
     if (!device) {
@@ -345,4 +391,68 @@ export class Home3d implements AfterViewInit, OnDestroy {
 
     this.resizeObs.observe(host);
   }
+
+
+  /* ================= DEVICE ACTIONS ================= */
+
+  changeFridgeTemp(delta: number): void {
+    if (!this.selectedObject) return;
+
+    const d = this.selectedObject.userData;
+
+    d['temperature'] = THREE.MathUtils.clamp(
+      d['temperature'] + delta,
+      d['minTemp'],
+      d['maxTemp']
+    );
+  }
+
+  changeStoveTemp(delta: number): void {
+    if (!this.selectedObject) return;
+
+    const d = this.selectedObject.userData;
+
+    d['temperature'] = THREE.MathUtils.clamp(
+      d['temperature'] + delta,
+      50,
+      300
+    );
+  }
+
+  toggleLamp(): void {
+    if (!this.selectedObject) return;
+
+    const d = this.selectedObject.userData;
+    d['isOn'] = !d['isOn'];
+
+    const light = d['light'] as THREE.PointLight;
+    if (light) {
+      light.intensity = d['isOn'] ? 1.2 : 0;
+    }
+
+    // визуальное свечение лампы
+    this.selectedObject.traverse(child => {
+      if (!(child as any).isMesh) return;
+      const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = d['isOn'] ? 0.6 : 0;
+    });
+
+    this.panel.status = d['isOn'] ? 'ON' : 'OFF';
+  }
+  setLampColor(hex: string): void {
+    if (!this.selectedObject) return;
+
+    const light = this.selectedObject.userData['light'] as THREE.PointLight;
+    if (light) {
+      light.color.set(hex);
+    }
+
+    // визуальный цвет лампочки
+    this.selectedObject.traverse(child => {
+      if (!(child as any).isMesh) return;
+      const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+      mat.emissive.set(hex);
+    });
+  }
+
 }

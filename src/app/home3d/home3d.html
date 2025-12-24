@@ -44,24 +44,95 @@
       </div>
 
       <!-- FRIDGE -->
-      <div *ngIf="isFridgeSelected" class="temp-control">
-        <h3>Fridge temperature</h3>
-        <div class="temp-value">{{ fridgeTemperature }} °C</div>
-      </div>
+      <div *ngIf="isFridgeSelected" class="device-card fridge">
+        <div class="card-header">
+          <span class="icon">❄️</span>
+          <span>Refrigerator</span>
+        </div>
 
-      <!-- STOVE -->
-      <div *ngIf="isStoveSelected" class="temp-control">
-        <h3>Stove temperature</h3>
-        <div class="temp-value">{{ stoveTemperature }} °C</div>
-      </div>
+        <div class="card-main">
+          <div class="big-value">
+            {{ fridgeTemperature }}°C
+          </div>
+          <div class="subtitle">Current temperature</div>
+        </div>
 
-      <!-- KETTLE -->
-      <div *ngIf="isKettleSelected" class="temp-control">
-        <h3>Kettle</h3>
-        <div class="temp-value">
-          {{ kettleTimeLeft }} sec left
+        <div class="card-controls">
+          <button (click)="changeFridgeTemp(-1)">−</button>
+          <button (click)="changeFridgeTemp(1)">+</button>
+        </div>
+
+        <div class="range">
+          <span>-18°C</span>
+          <span>8°C</span>
         </div>
       </div>
+
+
+      <!-- STOVE -->
+      <div *ngIf="isStoveSelected" class="device-card stove">
+        <div class="card-header">
+          <span class="icon">🔥</span>
+          <span>Stove</span>
+        </div>
+
+        <div class="card-main">
+          <div class="big-value">
+            {{ stoveTemperature }}°C
+          </div>
+          <div class="subtitle">Heating temperature</div>
+        </div>
+
+        <div class="card-controls">
+          <button (click)="changeStoveTemp(-10)">−</button>
+          <button (click)="changeStoveTemp(10)">+</button>
+        </div>
+      </div>
+
+
+      <!-- KETTLE -->
+      <div *ngIf="isKettleSelected" class="device-card kettle">
+        <div class="card-header">
+          <span class="icon">☕</span>
+          <span>Kettle</span>
+        </div>
+
+        <div class="card-main">
+          <div class="big-value">
+            {{ kettleTimeLeft }}s
+          </div>
+          <div class="subtitle">Time remaining</div>
+        </div>
+
+        <div class="progress">
+          <div
+            class="progress-bar"
+            [style.width.%]="(kettleTimeLeft / 120) * 100"
+          ></div>
+        </div>
+      </div>
+
+      <!-- LAMP -->
+      <div *ngIf="panel.type === 'lamp'" class="lamp-card">
+        <h3>Bathroom Light</h3>
+
+        <button (click)="toggleLamp()">
+          {{ panel.status === 'ON' ? 'Turn off' : 'Turn on' }}
+        </button>
+
+        <div class="lamp-section">
+          <div class="lamp-label">Color</div>
+
+          <div class="color-palette">
+            <span
+              *ngFor="let c of ['#ffffff', '#ffdca8', '#60a5fa', '#22c55e', '#a855f7']"
+              [style.background]="c"
+              (click)="setLampColor(c)"
+            ></span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </aside>
 </div>

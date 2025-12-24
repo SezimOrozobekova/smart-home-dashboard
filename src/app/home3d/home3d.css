@@ -608,123 +608,103 @@
 }
 
 
-
-/* ================= DEVICE CARDS ================= */
+/* ===== DEVICE CARD ===== */
 
 .device-card {
-  margin-top: 20px;
+  margin-top: 22px;
   padding: 20px;
   border-radius: 18px;
-  background: linear-gradient(
-    180deg,
-    rgba(30, 58, 138, 0.55),
-    rgba(15, 23, 42, 0.95)
-  );
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, #0f172a, #020617);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+  display: grid;
+  gap: 14px;
+}
+
+.device-card.fridge {
+  border: 1px solid rgba(56,189,248,0.35);
+}
+
+.device-card.stove {
+  border: 1px solid rgba(239,68,68,0.35);
+}
+
+.device-card.kettle {
+  border: 1px solid rgba(245,158,11,0.35);
 }
 
 /* ===== HEADER ===== */
 
 .card-header {
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
   font-weight: 700;
-  color: #e0e7ff;
-  margin-bottom: 14px;
 }
 
-/* ===== BIG TEMP ===== */
+.icon {
+  font-size: 20px;
+}
 
-.temp-big {
+/* ===== MAIN ===== */
+
+.card-main {
+  text-align: center;
+}
+
+.big-value {
   font-size: 42px;
   font-weight: 800;
-  text-align: center;
-  color: #f9fafb;
-  margin: 18px 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: rgba(229,231,235,0.7);
 }
 
 /* ===== CONTROLS ===== */
 
-.temp-controls {
+.card-controls {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 14px;
 }
 
-.temp-controls button {
-  width: 46px;
-  height: 46px;
+.card-controls button {
+  width: 48px;
+  height: 48px;
   border-radius: 14px;
   border: none;
   font-size: 22px;
   font-weight: 700;
   background: #2563eb;
-  color: #ffffff;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.temp-controls button:hover {
-  background: #1e40af;
-  transform: translateY(-2px);
-}
-
-/* ===== RANGE ===== */
-
-.temp-range {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #9ca3af;
-}
-
-/* ===== KETTLE ===== */
-
-.progress {
-  width: 100%;
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  overflow: hidden;
-  margin: 14px 0;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    #22d3ee,
-    #38bdf8
-  );
-  transition: width 0.4s ease;
-}
-
-.time-left {
-  text-align: center;
-  font-size: 14px;
-  color: #e5e7eb;
-  margin-bottom: 14px;
-}
-
-button.primary {
-  width: 100%;
-  padding: 12px 0;
-  border-radius: 14px;
-  border: none;
-  font-size: 14px;
-  font-weight: 700;
-  background: linear-gradient(
-    180deg,
-    #2563eb,
-    #1e40af
-  );
   color: white;
   cursor: pointer;
 }
 
-button.primary:hover {
-  opacity: 0.9;
+.card-controls button:hover {
+  background: #1e40af;
+}
+
+/* ===== RANGE ===== */
+
+.range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: rgba(229,231,235,0.6);
+}
+
+/* ===== PROGRESS ===== */
+
+.progress {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
 }
