@@ -14,8 +14,8 @@ type DeviceType =
   | 'room'
   | 'lamp'
   | 'fridge'
-  | 'kettle'
   | 'stove'
+  | 'kettle'
   | 'computer'
   | 'unknown';
 
@@ -36,20 +36,12 @@ export class Home3d implements AfterViewInit, OnDestroy {
   @ViewChild('canvasHost', { static: true })
   canvasHost!: ElementRef<HTMLDivElement>;
 
-  /* ================= KPI ================= */
-
-  kpis = {
-    totalW: 860,
-    todayKwh: 6.4,
-    ecoScore: 82
-  };
-
-  /* ================= UI STATE ================= */
+  /* ================= UI ================= */
 
   panel: DevicePanel = {
     name: 'No selection',
     type: 'unknown',
-    status: 'Click an object'
+    status: 'Click a device'
   };
 
   rooms = [
@@ -59,6 +51,7 @@ export class Home3d implements AfterViewInit, OnDestroy {
   ];
 
   currentRoomId = 'gaming';
+  selectedObject: THREE.Object3D | null = null;
 
   /* ================= THREE ================= */
 
@@ -71,8 +64,6 @@ export class Home3d implements AfterViewInit, OnDestroy {
   private mouse = new THREE.Vector2();
 
   private currentRoom: THREE.Object3D | null = null;
-  private selectedObject: THREE.Mesh | null = null;
-
   private rafId: number | null = null;
   private resizeObs!: ResizeObserver;
 
@@ -98,8 +89,8 @@ export class Home3d implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.rafId) cancelAnimationFrame(this.rafId);
-    this.renderer?.dispose();
     this.controls?.dispose();
+    this.renderer?.dispose();
     this.resizeObs?.disconnect();
   }
 
@@ -107,44 +98,39 @@ export class Home3d implements AfterViewInit, OnDestroy {
 
   private initScene(OrbitControls: any): void {
     const host = this.canvasHost.nativeElement;
-    host.innerHTML = '';
-
-    const w = host.clientWidth;
-    const h = host.clientHeight;
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color('#0f172a');
 
-    this.camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 500);
+    this.camera = new THREE.PerspectiveCamera(
+      55,
+      host.clientWidth / host.clientHeight,
+      0.1,
+      500
+    );
     this.camera.position.set(6, 4, 8);
     this.camera.lookAt(0, 1.5, 0);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(w, h);
+    this.renderer.setSize(host.clientWidth, host.clientHeight);
     host.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
 
-    this.scene.add(new THREE.AmbientLight(0xffffff, 1));
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.9));
 
     const sun = new THREE.DirectionalLight(0xffffff, 1.2);
     sun.position.set(6, 10, 8);
     this.scene.add(sun);
-
-    const floor = new THREE.Mesh(
-      new THREE.PlaneGeometry(30, 30),
-      new THREE.MeshStandardMaterial({ color: 0x020617 })
-    );
-    floor.rotation.x = -Math.PI / 2;
-    floor.userData['ignore'] = true;
-    this.scene.add(floor);
   }
 
-  /* ================= ROOMS ================= */
+  /* ================= ROOMS & DEVICES ================= */
 
   selectRoom(room: any): void {
     if (room.id === this.currentRoomId) return;
+
+    this.clearSelection();
     this.currentRoomId = room.id;
     this.loadRoom(room.file, room.name);
   }
@@ -154,97 +140,48 @@ export class Home3d implements AfterViewInit, OnDestroy {
 
     if (this.currentRoom) {
       this.scene.remove(this.currentRoom);
-      this.currentRoom = null;
     }
 
     loader.load(`assets/models/${file}`, gltf => {
       const room = gltf.scene;
 
-      const box = new THREE.Box3().setFromObject(room);
-      const center = box.getCenter(new THREE.Vector3());
-      room.position.sub(center);
-
-      if (this.currentRoomId === 'kitchen') {
-        room.position.x += 1.5;
-        room.position.z += 0.5;
-      }
-
-      if (this.currentRoomId === 'bathroom') {
-        room.position.x += 8;
-        room.position.z += 1;
-      }
-
-      room.scale.set(1.5, 1.5, 1.5);
-
-      const boxAfter = new THREE.Box3().setFromObject(room);
-      room.position.y -= boxAfter.min.y;
-
       room.traverse((obj: any) => {
         if (!obj.isMesh) return;
 
-        const parent = obj.parent;
-        if (!parent) return;
+        const root = obj.parent;
+        if (!root) return;
 
-        const parentName = parent.name.toLowerCase();
+        const name = (root.name || '').toLowerCase();
 
-        // 💡 LAMP
-        if (parentName.includes('lamp')) {
-          parent.userData['device'] = true;
-          parent.userData['type'] = 'lamp';
-          parent.userData['isOn'] = true;
-          console.log('💡 LAMP REGISTERED:', parent.name);
+        if (name.includes('fridge')) {
+          root.userData = {
+            device: true,
+            type: 'fridge',
+            isOn: true,
+            temperature: 4,
+            minTemp: -18,
+            maxTemp: 8
+          };
         }
 
-        // 🧊 FRIDGE
-        else if (
-          parentName.includes('fridge') ||
-          parentName.includes('freezer')
-        ) {
-          parent.userData['device'] = true;
-          parent.userData['type'] = 'fridge';
-          parent.userData['isOn'] = true;
-          console.log('🧊 FRIDGE REGISTERED:', parent.name);
+        else if (name.includes('stove') || name.includes('oven')) {
+          root.userData = {
+            device: true,
+            type: 'stove',
+            isOn: true,
+            temperature: 180
+          };
         }
 
-        // ☕ KETTLE / COFFEE
-        else if (
-          parentName.includes('coffee') ||
-          parentName.includes('kettle')
-        ) {
-          parent.userData['device'] = true;
-          parent.userData['type'] = 'kettle';
-          parent.userData['isOn'] = false;
-          console.log('☕ KETTLE REGISTERED:', parent.name);
-        }
-
-        // 🔥 STOVE
-        else if (
-          parentName.includes('stove') ||
-          parentName.includes('cooktop') ||
-          parentName.includes('oven')
-        ) {
-          parent.userData['device'] = true;
-          parent.userData['type'] = 'stove';
-          parent.userData['isOn'] = false;
-          console.log('🔥 STOVE REGISTERED:', parent.name);
-        }
-
-        // 💻 COMPUTER
-        else if (
-          parentName.includes('computer') ||
-          parentName.includes('pc') ||
-          parentName.includes('monitor')
-        ) {
-          parent.userData['device'] = true;
-          parent.userData['type'] = 'computer';
-          parent.userData['isOn'] = true;
-          console.log('💻 COMPUTER REGISTERED:', parent.name);
+        else if (name.includes('coffee')) {
+          root.userData = {
+            device: true,
+            type: 'kettle',
+            isOn: false,
+            timeLeft: 120
+          };
         }
       });
-
-
-      room.userData['type'] = 'room';
-      room.name = roomName;
 
       this.scene.add(room);
       this.currentRoom = room;
@@ -276,39 +213,27 @@ export class Home3d implements AfterViewInit, OnDestroy {
     this.mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
+    const hits = this.raycaster.intersectObjects(this.scene.children, true);
 
-    const hits = this.raycaster.intersectObjects(
-      this.scene.children,
-      true
-    );
+    // 🔥 ВСЕГДА ГАСИМ ВСЁ
+    this.clearAllHighlights();
 
     if (hits.length === 0) {
-      console.log('❌ Nothing clicked');
+      this.zone.run(() => this.clearSelection());
       return;
     }
 
-    const mesh = hits[0].object;
-
-    console.log('🟢 CLICKED MESH');
-    console.log('Name:', mesh.name);
-    console.log('Parent:', mesh.parent?.name);
-
-    const device = this.findDeviceRoot(mesh);
-
+    const device = this.findDeviceRoot(hits[0].object);
     if (!device) {
-      console.log('⚠️ No device found in parents');
+      this.zone.run(() => this.clearSelection());
       return;
     }
 
-    console.log('🟢 DEVICE FOUND');
-    console.log('Name:', device.name);
-    console.log('Type:', device.userData['type']);
-    console.log('UserData:', device.userData);
-
-    // сохраняем выбранное устройство
-    this.selectedObject = device as THREE.Mesh;
+    // 🔥 подсвечиваем ТОЛЬКО выбранный
+    this.highlightObject(device);
 
     this.zone.run(() => {
+      this.selectedObject = device;
       this.panel = {
         name: device.name,
         type: device.userData['type'] ?? 'unknown',
@@ -317,22 +242,107 @@ export class Home3d implements AfterViewInit, OnDestroy {
     });
   };
 
+  private clearSelection(): void {
+    this.clearAllHighlights();
+    this.selectedObject = null;
+
+    this.panel = {
+      name: 'No selection',
+      type: 'unknown',
+      status: 'Click a device'
+    };
+  }
+
+  /* ================= HIGHLIGHT ================= */
+
+  private highlightObject(obj: THREE.Object3D): void {
+    obj.traverse(child => {
+      if (!(child as any).isMesh) return;
+
+      const mesh = child as THREE.Mesh;
+
+      // 🔥 КЛОНИРУЕМ МАТЕРИАЛ ОДИН РАЗ
+      if (!mesh.userData['_origMaterial']) {
+        mesh.userData['_origMaterial'] = mesh.material;
+        mesh.material = (mesh.material as THREE.Material).clone();
+      }
+
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.emissive = new THREE.Color('#38bdf8');
+      mat.emissiveIntensity = 0.6;
+    });
+  }
+
+  private clearAllHighlights(): void {
+    this.scene.traverse(obj => {
+      if (!(obj as any).isMesh) return;
+
+      const mesh = obj as THREE.Mesh;
+
+      if (mesh.userData['_origMaterial']) {
+        mesh.material = mesh.userData['_origMaterial'];
+        delete mesh.userData['_origMaterial'];
+      }
+    });
+  }
 
 
-  /* ================= DEVICE CONTROL ================= */
+  /* ================= HELPERS ================= */
 
-  toggleSelectedDevice(): void {
-    if (!this.selectedObject) return;
+  private findDeviceRoot(obj: THREE.Object3D): THREE.Object3D | null {
+    let current: THREE.Object3D | null = obj;
 
-    const data = this.selectedObject.userData;
-    data['isOn'] = !data['isOn'];
-
-    if (data['type'] === 'lamp') {
-      const mat = this.selectedObject.material as THREE.MeshStandardMaterial;
-      mat.color.set(data['isOn'] ? '#ffffff' : '#1e293b');
+    while (current) {
+      if (current.userData?.['device']) return current;
+      current = current.parent;
     }
+    return null;
+  }
 
-    this.panel.status = data['isOn'] ? 'ON' : 'OFF';
+  /* ================= PANEL COMPUTED ================= */
+
+  get isFridgeSelected(): boolean {
+    return this.selectedObject?.userData?.['type'] === 'fridge';
+  }
+
+  get isStoveSelected(): boolean {
+    return this.selectedObject?.userData?.['type'] === 'stove';
+  }
+
+  get isKettleSelected(): boolean {
+    return this.selectedObject?.userData?.['type'] === 'kettle';
+  }
+
+  get fridgeTemperature(): number {
+    return this.selectedObject!.userData['temperature'];
+  }
+
+  get stoveTemperature(): number {
+    return this.selectedObject!.userData['temperature'];
+  }
+
+  get kettleTimeLeft(): number {
+    return this.selectedObject!.userData['timeLeft'];
+  }
+
+  /* ================= DEVICE ACTIONS ================= */
+
+  changeFridgeTemp(delta: number): void {
+    const d = this.selectedObject!.userData;
+    d['temperature'] = THREE.MathUtils.clamp(
+      d['temperature'] + delta,
+      d['minTemp'],
+      d['maxTemp']
+    );
+  }
+
+  changeStoveTemp(delta: number): void {
+    const d = this.selectedObject!.userData;
+    d['temperature'] = THREE.MathUtils.clamp(
+      d['temperature'] + delta,
+      50,
+      300
+    );
   }
 
   /* ================= LOOP ================= */
@@ -350,30 +360,11 @@ export class Home3d implements AfterViewInit, OnDestroy {
     const host = this.canvasHost.nativeElement;
 
     this.resizeObs = new ResizeObserver(() => {
-      const w = host.clientWidth;
-      const h = host.clientHeight;
-      if (!w || !h) return;
-
-      this.camera.aspect = w / h;
+      this.camera.aspect = host.clientWidth / host.clientHeight;
       this.camera.updateProjectionMatrix();
-      this.renderer.setSize(w, h);
+      this.renderer.setSize(host.clientWidth, host.clientHeight);
     });
 
     this.resizeObs.observe(host);
   }
-
-
-  private findDeviceRoot(obj: THREE.Object3D): THREE.Object3D | null {
-    let current: THREE.Object3D | null = obj;
-
-    while (current) {
-      if (current.userData?.['device']) {
-        return current;
-      }
-      current = current.parent;
-    }
-
-    return null;
-  }
-
 }

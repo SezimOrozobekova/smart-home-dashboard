@@ -12,6 +12,25 @@
  );
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: all; /* ← ВАЖНО */
+}
+
+.modal {
+  pointer-events: auto;
+}
+
+
 .layout{
   height: 100%;
   display: grid;
@@ -512,4 +531,78 @@
   );
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.45);
+}
+
+
+
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  width: 320px;
+  padding: 22px;
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(30, 58, 138, 0.9),
+    rgba(15, 23, 42, 0.95)
+  );
+  color: #e5e7eb;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+}
+
+.modal h3 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.temp-display {
+  font-size: 42px;
+  font-weight: 800;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.temp-controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.temp-controls button {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: none;
+  font-size: 22px;
+  font-weight: 700;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+.temp-controls button:hover {
+  background: #1e40af;
+}
+
+.modal-actions {
+  margin-top: 18px;
+  text-align: right;
+}
+
+.modal .close {
+  background: transparent;
+  border: none;
+  color: #93c5fd;
+  font-size: 13px;
+  cursor: pointer;
 }
