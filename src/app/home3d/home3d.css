@@ -1,0 +1,137 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #e5e7eb;
+  background: linear-gradient(
+    180deg,
+    #0f172a 0%,
+    #020617 100%
+  );
+}
+
+.layout {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 16px;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.board {
+  min-height: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.board__header {
+  padding: 14px 14px 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.board__title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 280px;
+}
+
+.board__pill {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(34, 211, 238, 0.75));
+  color: #07101f;
+}
+
+.board__h {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.board__sub {
+  font-size: 12px;
+  color: rgba(229, 231, 235, 0.75);
+  margin-top: 2px;
+}
+
+.board__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  outline: 2px solid rgba(99, 102, 241, 0.35);
+  outline-offset: -8px;
+  border-radius: 16px;
+}
+
+.panel {
+  min-height: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.panel__body {
+  display: grid;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.rooms {
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.rooms__title {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 8px;
+  letter-spacing: 0.08em;
+}
+
+.room-btn {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: #0f172a;
+  border: 1px solid #1f2937;
+  color: #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.room-btn:hover {
+  background: #1e293b;
+}
+
+.room-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+}

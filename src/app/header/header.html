@@ -1,0 +1,50 @@
+<mat-toolbar class="app-toolbar">
+
+  <div class="brand">
+    <div class="brand-icon">🏠</div>
+    <span class="logo">My Smart Home</span>
+  </div>
+
+  <nav class="nav">
+
+    <a
+      mat-button
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }">
+      Dashboard
+    </a>
+
+    <a
+      mat-button
+      routerLink="/devices"
+      routerLinkActive="active">
+      Devices
+    </a>
+
+    <a
+      mat-button
+      routerLink="/home3d"
+      routerLinkActive="active">
+      3D Home
+    </a>
+
+    <a
+      mat-button
+      routerLink="/insights"
+      routerLinkActive="active">
+      Insights
+    </a>
+
+  </nav>
+
+  <div class="header-info">
+    <div class="weather">
+      <span class="weather-icon">☁</span>
+      <span>18°C Cloudy</span>
+    </div>
+    <div class="divider"></div>
+    <div class="time">19:45</div>
+  </div>
+
+</mat-toolbar>

@@ -1,0 +1,48 @@
+<div class="layout">
+  <section class="board">
+    <header class="board__header">
+      <div class="board__title">
+        <div class="board__pill">3D</div>
+        <div>
+          <div class="board__h">Home Model</div>
+          <div class="board__sub">Rotate • Zoom • Click device</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="board__stage">
+      <app-home-scene
+        [roomFile]="currentRoomFile"
+        (deviceSelected)="onDeviceSelected($event)"
+        (selectionCleared)="onSelectionCleared()"
+        (roomLoaded)="onRoomLoaded()"
+      ></app-home-scene>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <div class="rooms">
+      <div class="rooms__title">Rooms</div>
+
+      <button
+        class="room-btn"
+        *ngFor="let room of rooms"
+        [class.active]="room.id === currentRoomId"
+        (click)="selectRoom(room)"
+      >
+        {{ room.name }}
+      </button>
+    </div>
+
+    <div class="panel__body">
+      <app-device-panel-host
+        [panel]="panel"
+        [selectedObject]="selectedObject"
+        (fridgeTempChange)="changeFridgeTemp($event)"
+        (stoveTempChange)="changeStoveTemp($event)"
+        (lampToggle)="toggleLamp()"
+        (lampColorChange)="setLampColor($event)"
+      ></app-device-panel-host>
+    </div>
+  </aside>
+</div>

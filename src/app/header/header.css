@@ -1,0 +1,156 @@
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+
+  /* новый цвет */
+  background: linear-gradient(90deg, #00040f 0%, #000c26 50%, #001233 100%);
+
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+/* убираем стандартные стили mat-toolbar */
+.app-toolbar.mat-toolbar {
+  color: #ffffff;
+  font-family: inherit;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 220px;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 500;
+  color: #f8fafc;
+  letter-spacing: 0.2px;
+  line-height: 1;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+}
+
+.nav a.mat-mdc-button,
+.nav a.mat-mdc-button:visited {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: none;
+  min-width: auto;
+  padding: 0 14px;
+  height: 40px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.nav a:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.nav a.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 180px;
+  justify-content: flex-end;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.weather {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weather-icon {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.time {
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* адаптив */
+@media (max-width: 900px) {
+  .logo {
+    font-size: 22px;
+  }
+
+  .nav {
+    gap: 2px;
+  }
+
+  .nav a.mat-mdc-button {
+    padding: 0 10px;
+    font-size: 14px;
+  }
+
+  .header-info {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .app-toolbar {
+    padding: 0 16px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .nav a.mat-mdc-button {
+    padding: 0 8px;
+    font-size: 13px;
+  }
+}

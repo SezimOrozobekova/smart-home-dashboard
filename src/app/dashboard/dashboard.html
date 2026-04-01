@@ -1,0 +1,208 @@
+<div class="dashboard">
+
+  <!-- SECTION 1: CARDS -->
+  <section class="dashboard-section section-cards">
+    <app-starfield-parallax-background></app-starfield-parallax-background>
+
+    <div class="section-container">
+      <div class="dashboard-hero">
+        <h1 class="dashboard-title">
+          Smart Home Energy Overview
+        </h1>
+
+        <p class="dashboard-subtitle">
+          Monitor connected devices, track energy consumption,
+          and optimise your home's energy efficiency in real time.
+        </p>
+      </div>
+
+      <div class="summary-grid">
+        <mat-card
+          class="summary-card"
+          *ngFor="let item of summary; trackBy: trackByTitle"
+          @fadeUp
+        >
+          <div class="card-header">
+            <div class="card-icon-wrap">
+              <span class="card-icon">{{ item.icon }}</span>
+            </div>
+
+            <div class="card-text">
+              <div class="card-title">{{ item.title }}</div>
+              <div class="card-value">{{ item.value }}</div>
+
+              <div
+                class="card-subtitle"
+                [ngClass]="item.type"
+                *ngIf="item.subtitle"
+              >
+                {{ item.subtitle }}
+              </div>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: OVERVIEW -->
+  <section class="dashboard-section section-overview">
+    <div class="section-container">
+      <div class="overview-grid">
+        <!-- Energy chart -->
+        <mat-card class="summary-card chart-card" @fadeUp>
+          <div class="overview-card-header">
+            <div>
+              <div class="overview-title">Energy usage</div>
+              <div class="overview-value">
+                {{ selectedEnergySummary.total }}
+                <span class="overview-unit">kWh</span>
+              </div>
+            </div>
+
+            <div class="chart-filter-wrap">
+              <select
+                class="chart-filter"
+                [value]="energyFilter"
+                (change)="onEnergyFilterChange($event)"
+              >
+                <option *ngFor="let option of filterOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="chart-container dual-chart-container">
+            <canvas id="energyChart"></canvas>
+          </div>
+
+          <div class="chart-footer">
+            Peak consumption observed between
+            <strong>{{ selectedEnergySummary.peakWindow }}</strong>
+          </div>
+        </mat-card>
+
+        <!-- Temperature chart -->
+        <mat-card class="summary-card chart-card" @fadeUp>
+          <div class="overview-card-header">
+            <div>
+              <div class="overview-title">Temperature today</div>
+              <div class="overview-value">
+                {{ selectedTemperatureSummary.avg }}
+                <span class="overview-unit">°C</span>
+              </div>
+            </div>
+
+            <div class="chart-filter-wrap">
+              <select
+                class="chart-filter"
+                [value]="temperatureFilter"
+                (change)="onTemperatureFilterChange($event)"
+              >
+                <option *ngFor="let option of filterOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="chart-container dual-chart-container">
+            <canvas id="temperatureChart"></canvas>
+          </div>
+
+          <div class="chart-footer">
+            Lowest: <strong>{{ selectedTemperatureSummary.min }}°C</strong>
+            · Highest: <strong>{{ selectedTemperatureSummary.max }}°C</strong>
+          </div>
+        </mat-card>
+      </div>
+
+      <div class="overview-bottom-grid">
+        <!-- Energy consumed -->
+        <mat-card class="summary-card consumers-card" @fadeUp>
+          <div class="block-title">Energy consumed</div>
+
+          <div
+            class="consumer-row"
+            *ngFor="let device of topConsumers; trackBy: trackByConsumer"
+          >
+            <span class="device-name">{{ device.name }}</span>
+            <span class="device-energy">{{ device.energy }}</span>
+          </div>
+        </mat-card>
+
+        <!-- Recent activity -->
+        <mat-card class="summary-card activity-card" @fadeUp>
+          <div class="block-title">Recent Activity</div>
+
+          <div class="activity-scroll">
+            <div class="activity-list">
+              <div
+                class="activity-row"
+                *ngFor="let activity of recentActivities; trackBy: trackByActivity"
+              >
+                <span class="activity-time">{{ activity.time }}</span>
+                <span class="activity-separator">|</span>
+                <span class="activity-text">{{ activity.text }}</span>
+              </div>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: FLOOR OVERVIEW -->
+  <section class="dashboard-section section-floor-overview">
+    <div class="section-container">
+      <div class="floor-overview-header" @fadeUp>
+        <h2 class="floor-overview-title">Overview</h2>
+
+        <div class="floor-switcher">
+          <button
+            type="button"
+            class="floor-switch-btn"
+            [class.active]="selectedFloor === 'first'"
+            (click)="selectFloor('first')"
+          >
+            First floor
+          </button>
+
+          <button
+            type="button"
+            class="floor-switch-btn"
+            [class.active]="selectedFloor === 'second'"
+            (click)="selectFloor('second')"
+          >
+            Second floor
+          </button>
+        </div>
+      </div>
+
+      <mat-card class="summary-card floor-plan-card" @fadeUp>
+        <div class="floor-plan-image-wrap">
+          <img
+            class="floor-plan-image"
+            [src]="selectedFloorImage"
+            [alt]="selectedFloor === 'first' ? 'First floor plan' : 'Second floor plan'"
+          />
+
+          <!-- optional hotspot example -->
+          <div
+            class="room-hotspot"
+            *ngIf="selectedFloor === 'second'"
+          >
+            <div class="hotspot-card">
+              <div class="hotspot-title">Bedroom 1</div>
+              <div class="hotspot-subtitle">3 Devices Connected</div>
+            </div>
+
+            <div class="hotspot-dot"></div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </section>
+
+</div>
