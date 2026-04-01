@@ -1,0 +1,19 @@
+<div class="lamp-card">
+  <h3>Bathroom Light</h3>
+
+  <button (click)="onToggle()">
+    {{ status === 'ON' ? 'Turn off' : 'Turn on' }}
+  </button>
+
+  <div class="lamp-section">
+    <div class="lamp-label">Color</div>
+
+    <div class="color-palette">
+      <span
+        *ngFor="let c of colors"
+        [style.background]="c"
+        (click)="selectColor(c)"
+      ></span>
+    </div>
+  </div>
+</div>

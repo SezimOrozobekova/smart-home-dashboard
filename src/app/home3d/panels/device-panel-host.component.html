@@ -1,0 +1,38 @@
+<div class="row">
+  <div class="label">Name</div>
+  <div class="value">{{ panel.name }}</div>
+</div>
+
+<div class="row">
+  <div class="label">Type</div>
+  <div class="value">{{ panel.type }}</div>
+</div>
+
+<div class="row">
+  <div class="label">Status</div>
+  <div class="value">{{ panel.status }}</div>
+</div>
+
+<app-fridge-panel
+  *ngIf="isFridgeSelected"
+  [temperature]="fridgeTemperature"
+  (tempChange)="onFridgeTempChange($event)"
+></app-fridge-panel>
+
+<app-stove-panel
+  *ngIf="isStoveSelected"
+  [temperature]="stoveTemperature"
+  (tempChange)="onStoveTempChange($event)"
+></app-stove-panel>
+
+<app-kettle-panel
+  *ngIf="isKettleSelected"
+  [timeLeft]="kettleTimeLeft"
+></app-kettle-panel>
+
+<app-lamp-panel
+  *ngIf="isLampSelected"
+  [status]="panel.status"
+  (toggle)="onLampToggle()"
+  (colorChange)="onLampColorChange($event)"
+></app-lamp-panel>

@@ -1,0 +1,5 @@
+@import '../shared/panel-common.css';
+
+.device-card.fridge {
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}

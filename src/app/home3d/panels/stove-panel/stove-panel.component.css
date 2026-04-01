@@ -1,0 +1,5 @@
+@import '../shared/panel-common.css';
+
+.device-card.stove {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}

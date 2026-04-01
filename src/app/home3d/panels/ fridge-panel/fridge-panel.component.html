@@ -1,0 +1,21 @@
+<div class="device-card fridge">
+  <div class="card-header">
+    <span class="icon">❄️</span>
+    <span>Refrigerator</span>
+  </div>
+
+  <div class="card-main">
+    <div class="big-value">{{ temperature }}°C</div>
+    <div class="subtitle">Current temperature</div>
+  </div>
+
+  <div class="card-controls">
+    <button (click)="change(-1)">−</button>
+    <button (click)="change(1)">+</button>
+  </div>
+
+  <div class="range">
+    <span>-18°C</span>
+    <span>8°C</span>
+  </div>
+</div>

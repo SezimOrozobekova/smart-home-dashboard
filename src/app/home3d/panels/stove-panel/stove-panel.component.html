@@ -1,0 +1,16 @@
+<div class="device-card stove">
+  <div class="card-header">
+    <span class="icon">🔥</span>
+    <span>Stove</span>
+  </div>
+
+  <div class="card-main">
+    <div class="big-value">{{ temperature }}°C</div>
+    <div class="subtitle">Heating temperature</div>
+  </div>
+
+  <div class="card-controls">
+    <button (click)="change(-10)">−</button>
+    <button (click)="change(10)">+</button>
+  </div>
+</div>
