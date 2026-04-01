@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideRouter([])]
     }).compileComponents();
   });
 
@@ -14,10 +16,21 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('should render the header component', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
+    fixture.detectChanges();
+
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, smart-home-dashboard');
+    expect(compiled.querySelector('app-header')).toBeTruthy();
+  });
+
+  it('should contain router outlet', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });
