@@ -74,13 +74,25 @@ export class Home3d {
   }
 
   onDeviceSelected(device: THREE.Object3D): void {
+    const type = device.userData['type'] ?? 'unknown';
+
     this.selectedObject = device;
 
-    this.panel = {
-      name: device.name || 'Device',
-      type: device.userData['type'] ?? 'unknown',
-      status: device.userData['isOn'] ? 'ON' : 'OFF'
-    };
+    if (type === 'lamp') {
+      const isOn = this.deviceControl.toggleLamp(device);
+
+      this.panel = {
+        name: device.name || 'Device',
+        type,
+        status: isOn ? 'ON' : 'OFF'
+      };
+    } else {
+      this.panel = {
+        name: device.name || 'Device',
+        type,
+        status: device.userData['isOn'] ? 'ON' : 'OFF'
+      };
+    }
 
     this.cdr.detectChanges();
   }
@@ -110,13 +122,11 @@ export class Home3d {
     this.deviceControl.changeStoveTemp(this.selectedObject, delta);
     this.cdr.detectChanges();
   }
-
   toggleLamp(): void {
     const isOn = this.deviceControl.toggleLamp(this.selectedObject);
     this.panel.status = isOn ? 'ON' : 'OFF';
     this.cdr.detectChanges();
   }
-
   setLampColor(color: string): void {
     this.deviceControl.setLampColor(this.selectedObject, color);
     this.cdr.detectChanges();

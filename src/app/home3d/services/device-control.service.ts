@@ -68,15 +68,14 @@ export class DeviceControlService {
 
     d['isOn'] = !d['isOn'];
 
-    this.updateRoomLights(device, d['isOn']);
-
     if (light) {
       light.intensity = d['isOn'] ? (d['defaultIntensity'] ?? 18) : 0;
     }
 
+    this.updateRoomLights(device, d['isOn']);
+
     return d['isOn'];
   }
-
   setLampColor(device: THREE.Object3D | null, hex: string): void {
     if (!device) return;
 
