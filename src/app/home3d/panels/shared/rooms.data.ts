@@ -37,5 +37,15 @@ export const ROOMS: RoomItem[] = [
       color: '#f5f1ff'
     }
   },
-  { id: 'myroom', name: 'My Room', file: 'living_room.glb' }
+  { id: 'myroom',
+    name: 'Living room',
+    file: 'living_room.glb',
+    light: {
+      ambientOff: 0.03,
+      ambientOn: 0.8,
+      directionalOff: 0.03,
+      directionalOn: 1.0,
+      color: '#f5f1ff'
+    }
+  }
 ];
