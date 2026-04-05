@@ -1,18 +1,18 @@
 <div class="dashboard">
-
-  <!-- SECTION 1: CARDS -->
   <section class="dashboard-section section-cards">
     <app-starfield-parallax-background></app-starfield-parallax-background>
 
     <div class="section-container">
       <div class="dashboard-hero">
+        <div class="dashboard-eyebrow">Monitoring platform</div>
+
         <h1 class="dashboard-title">
-          Smart Home Energy
+          Smart Home Monitoring Dashboard
         </h1>
 
         <p class="dashboard-subtitle">
-          Monitor connected devices, track energy consumption,
-          and optimise your home's energy efficiency in real time.
+          Monitor connected devices, review room-level activity,
+          and analyse energy consumption across the entire home in real time.
         </p>
       </div>
 
@@ -24,7 +24,7 @@
         >
           <div class="card-header">
             <div class="card-icon-wrap">
-              <span class="card-icon">{{ item.icon }}</span>
+              <span class="material-symbols-outlined card-icon">{{ item.icon }}</span>
             </div>
 
             <div class="card-text">
@@ -45,11 +45,13 @@
     </div>
   </section>
 
-  <!-- SECTION 3: FLOOR OVERVIEW -->
   <section class="dashboard-section section-floor-overview">
     <div class="section-container">
       <div class="floor-overview-header" @fadeUp>
-        <h2 class="floor-overview-title">Rooms overview</h2>
+        <div>
+          <div class="section-label">Building map</div>
+          <h2 class="floor-overview-title">Floor Overview</h2>
+        </div>
 
         <div class="floor-switcher">
           <button
@@ -74,16 +76,12 @@
 
       <mat-card class="summary-card floor-plan-card" @fadeUp>
         <div class="floor-plan-image-wrap">
-          <!-- FLOOR IMAGE -->
           <img
             class="floor-plan-image"
             [src]="selectedFloorImage"
             [alt]="selectedFloor === 'first' ? 'First floor plan' : 'Second floor plan'"
           />
 
-          <!-- ===================================================== -->
-          <!-- HOTSPOT LAYER: clickable room areas with orange fill -->
-          <!-- ===================================================== -->
           <svg
             class="floor-plan-overlay"
             viewBox="0 0 100 100"
@@ -99,11 +97,6 @@
             </g>
           </svg>
 
-          <!-- ===================================================== -->
-          <!-- HOTSPOT INFO: card and dot are positioned separately  -->
-          <!-- ===================================================== -->
-
-          <!-- HOTSPOT CARD -->
           <div
             *ngIf="activeRoom as room"
             class="hotspot-card"
@@ -111,10 +104,11 @@
             [style.top.%]="room.cardY"
           >
             <div class="hotspot-title">{{ room.name }}</div>
-            <div class="hotspot-subtitle">{{ room.devices }} Devices Connected</div>
+            <div class="hotspot-subtitle">{{ room.devices }} devices connected</div>
+            <div class="hotspot-meta">Current load: {{ room.powerLoad }}</div>
+            <div class="hotspot-meta muted">Status: {{ room.status }}</div>
           </div>
 
-          <!-- HOTSPOT DOT -->
           <div
             *ngIf="activeRoom as room"
             class="hotspot-dot"
@@ -125,17 +119,19 @@
       </mat-card>
     </div>
   </section>
-  <!-- SECTION 2: OVERVIEW -->
-  <section class="dashboard-section section-overview">
 
+  <section class="dashboard-section section-overview">
     <div class="section-container">
+      <div class="overview-header" @fadeUp>
+        <div class="section-label">Analytics</div>
+        <h2 class="overview-main-title">Operational Overview</h2>
+      </div>
 
       <div class="overview-grid">
-        <!-- Energy chart -->
         <mat-card class="summary-card chart-card" @fadeUp>
           <div class="overview-card-header">
             <div>
-              <div class="overview-title">Energy usage</div>
+              <div class="overview-title">Energy Usage</div>
               <div class="overview-value">
                 {{ selectedEnergySummary.total }}
                 <span class="overview-unit">kWh</span>
@@ -165,11 +161,10 @@
           </div>
         </mat-card>
 
-        <!-- Temperature chart -->
         <mat-card class="summary-card chart-card" @fadeUp>
           <div class="overview-card-header">
             <div>
-              <div class="overview-title">Temperature today</div>
+              <div class="overview-title">Temperature</div>
               <div class="overview-value">
                 {{ selectedTemperatureSummary.avg }}
                 <span class="overview-unit">°C</span>
@@ -201,9 +196,8 @@
       </div>
 
       <div class="overview-bottom-grid">
-        <!-- Energy consumed -->
         <mat-card class="summary-card consumers-card" @fadeUp>
-          <div class="block-title">Energy consumed</div>
+          <div class="block-title">Top Energy Consumers</div>
 
           <div
             class="consumer-row"
@@ -214,9 +208,8 @@
           </div>
         </mat-card>
 
-        <!-- Recent activity -->
         <mat-card class="summary-card activity-card" @fadeUp>
-          <div class="block-title">Recent Activity</div>
+          <div class="block-title">System Activity</div>
 
           <div class="activity-scroll">
             <div class="activity-list">
@@ -234,7 +227,4 @@
       </div>
     </div>
   </section>
-
-
-
 </div>

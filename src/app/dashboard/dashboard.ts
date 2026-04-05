@@ -56,6 +56,8 @@ interface RoomPolygon {
   floor: 'first' | 'second';
   name: string;
   devices: number;
+  powerLoad: string;
+  status: string;
   points: string;
   dotX: number;
   dotY: number;
@@ -95,36 +97,29 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     {
       title: 'Devices Connected',
       value: '24',
-      subtitle: '',
-      icon: '📷',
+      subtitle: 'Across all monitored rooms',
+      icon: 'devices',
       type: 'default'
     },
     {
       title: 'Active Devices',
       value: '12',
-      subtitle: '',
-      icon: '⏻',
-      type: 'default'
+      subtitle: 'Currently operating',
+      icon: 'power_settings_new',
+      type: 'success'
     },
     {
-      title: 'Rooms in Home',
+      title: 'Rooms Monitored',
       value: '8',
-      subtitle: '',
-      icon: '🏠',
+      subtitle: 'Across two floors',
+      icon: 'home_work',
       type: 'default'
     },
     {
-      title: 'Energy Usage Today',
-      value: '13.4',
-      subtitle: '',
-      icon: '⚡',
-      type: 'default'
-    },
-    {
-      title: 'Cost estimate',
+      title: 'Estimated Monthly Cost',
       value: '$225',
-      subtitle: '$35 Increased from last month',
-      icon: '⚡',
+      subtitle: '$35 higher than last month',
+      icon: 'payments',
       type: 'danger'
     }
   ];
@@ -192,13 +187,13 @@ export class Dashboard implements AfterViewInit, OnDestroy {
   ];
 
   recentActivities: ActivityItem[] = [
-    { time: '19:42', text: 'Living Room Lights turned ON' },
-    { time: '19:32', text: 'Front Door Opened' },
+    { time: '19:42', text: 'Living room lights switched on' },
+    { time: '19:32', text: 'Front door opened' },
     { time: '19:05', text: 'Thermostat set to 22°C' },
-    { time: '18:55', text: 'Motion detected in Garage' },
-    { time: '18:21', text: 'Washing Machine cycle started' },
-    { time: '17:48', text: 'Air Conditioner switched to Eco mode' },
-    { time: '17:15', text: 'Kitchen Oven turned OFF' }
+    { time: '18:55', text: 'Motion detected in garage' },
+    { time: '18:21', text: 'Washing machine cycle started' },
+    { time: '17:48', text: 'Air conditioner switched to eco mode' },
+    { time: '17:15', text: 'Kitchen oven switched off' }
   ];
 
   selectedFloor: 'first' | 'second' = 'first';
@@ -215,7 +210,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       floor: 'first',
       name: 'Office',
       devices: 2,
-      points: '3,4      40.5,4      41, 51      3,51',
+      powerLoad: '0.8 kW',
+      status: 'Stable',
+      points: '3,4 40.5,4 41,51 3,51',
       dotX: 24,
       dotY: 24,
       cardX: 24,
@@ -224,9 +221,11 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     {
       id: 'first-upper-right',
       floor: 'first',
-      name: 'Living room',
+      name: 'Living Room',
       devices: 3,
-      points: '43.5, 3.5    97, 3.5     97.5, 50.5        43.5, 51',
+      powerLoad: '1.9 kW',
+      status: 'High activity',
+      points: '43.5,3.5 97,3.5 97.5,50.5 43.5,51',
       dotX: 79,
       dotY: 24,
       cardX: 79,
@@ -237,7 +236,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       floor: 'first',
       name: 'Hall',
       devices: 4,
-      points: '3,55         61.5,54.5      61.5,97        3,97',
+      powerLoad: '1.1 kW',
+      status: 'Normal',
+      points: '3,55 61.5,54.5 61.5,97 3,97',
       dotX: 34,
       dotY: 75,
       cardX: 34,
@@ -248,19 +249,22 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       floor: 'first',
       name: 'Kitchen',
       devices: 2,
-      points: '64.5, 54.5      97.5,54.5      98,96.5        64.5,97',
+      powerLoad: '1.6 kW',
+      status: 'Moderate load',
+      points: '64.5,54.5 97.5,54.5 98,96.5 64.5,97',
       dotX: 83,
       dotY: 75,
       cardX: 83,
       cardY: 64
     },
-
     {
       id: 'second-upper-left',
       floor: 'second',
-      name: 'Guest room',
+      name: 'Guest Room',
       devices: 2,
-      points: '2.5,3      40,3      40, 51      2.5,51',
+      powerLoad: '0.5 kW',
+      status: 'Low activity',
+      points: '2.5,3 40,3 40,51 2.5,51',
       dotX: 21,
       dotY: 24,
       cardX: 21,
@@ -271,7 +275,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       floor: 'second',
       name: 'Bedroom 1',
       devices: 3,
-      points: '43.5, 3    97, 3     97.5, 50.5        43.5, 51',
+      powerLoad: '1.2 kW',
+      status: 'Stable',
+      points: '43.5,3 97,3 97.5,50.5 43.5,51',
       dotX: 78,
       dotY: 24,
       cardX: 78,
@@ -282,7 +288,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       floor: 'second',
       name: 'Hall / Stairs',
       devices: 1,
-      points: '2.5,55         61,54.5      61,98        2.5,98',
+      powerLoad: '0.3 kW',
+      status: 'Low activity',
+      points: '2.5,55 61,54.5 61,98 2.5,98',
       dotX: 31,
       dotY: 74,
       cardX: 31,
@@ -291,9 +299,11 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     {
       id: 'second-lower-right',
       floor: 'second',
-      name: 'Badroom 2',
+      name: 'Bedroom 2',
       devices: 4,
-      points: '64, 54.5      97.5,54.5      98,98        64,98',
+      powerLoad: '1.4 kW',
+      status: 'Normal',
+      points: '64,54.5 97.5,54.5 98,98 64,98',
       dotX: 81,
       dotY: 74,
       cardX: 81,
@@ -375,7 +385,6 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     if (!canvas) return;
 
     const chartState = this.energyChartMock[this.energyFilter];
-
     this.energyChart?.destroy();
 
     this.energyChart = new Chart(canvas, {
@@ -387,9 +396,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
             label: 'Energy consumed',
             data: chartState.data,
             borderColor: '#22c55e',
-            backgroundColor: 'rgba(34, 197, 94, 0.18)',
+            backgroundColor: 'rgba(34, 197, 94, 0.14)',
             fill: true,
-            tension: 0.42,
+            tension: 0.38,
             pointRadius: 3,
             pointHoverRadius: 5,
             pointBackgroundColor: '#22c55e',
@@ -401,6 +410,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 700
+        },
         layout: {
           padding: { top: 8, right: 8, bottom: 8, left: 8 }
         },
@@ -412,7 +424,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
             backgroundColor: '#111827',
             titleColor: '#ffffff',
             bodyColor: '#ffffff',
-            cornerRadius: 8,
+            cornerRadius: 10,
             callbacks: {
               label: (context) => `${context.parsed.y} kWh`
             }
@@ -454,7 +466,6 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     if (!canvas) return;
 
     const chartState = this.temperatureChartMock[this.temperatureFilter];
-
     this.temperatureChart?.destroy();
 
     this.temperatureChart = new Chart(canvas, {
@@ -466,9 +477,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
             label: 'Temperature',
             data: chartState.data,
             borderColor: '#38bdf8',
-            backgroundColor: 'rgba(56, 189, 248, 0.14)',
+            backgroundColor: 'rgba(56, 189, 248, 0.12)',
             fill: true,
-            tension: 0.42,
+            tension: 0.38,
             pointRadius: 3,
             pointHoverRadius: 5,
             pointBackgroundColor: '#38bdf8',
@@ -480,6 +491,9 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 700
+        },
         layout: {
           padding: { top: 8, right: 8, bottom: 8, left: 8 }
         },
@@ -491,7 +505,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
             backgroundColor: '#111827',
             titleColor: '#ffffff',
             bodyColor: '#ffffff',
-            cornerRadius: 8,
+            cornerRadius: 10,
             callbacks: {
               label: (context) => `${context.parsed.y} °C`
             }
