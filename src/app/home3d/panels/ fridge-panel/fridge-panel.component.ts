@@ -13,7 +13,7 @@ export class FridgePanelComponent {
 
   @Output() tempChange = new EventEmitter<number>();
 
-  change(delta: number) {
+  change(delta: number): void {
     this.tempChange.emit(delta);
   }
 }

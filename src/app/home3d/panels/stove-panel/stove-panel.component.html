@@ -1,16 +1,47 @@
-<div class="device-card stove">
-  <div class="card-header">
-    <span class="icon">🔥</span>
-    <span>Stove</span>
+<section class="control-section stove-section">
+  <div class="control-section__header">
+    <div>
+      <div class="control-section__eyebrow">Heating device</div>
+      <h4 class="control-section__title">Stove</h4>
+    </div>
+
+    <div class="status-badge status-badge--hot">
+      Heating
+    </div>
   </div>
 
-  <div class="card-main">
-    <div class="big-value">{{ temperature }}°C</div>
-    <div class="subtitle">Heating temperature</div>
+  <div class="metric-block">
+    <div class="metric-block__value">
+      {{ temperature }}<span>°C</span>
+    </div>
+    <div class="metric-block__label">Heating temperature</div>
   </div>
 
-  <div class="card-controls">
-    <button (click)="change(-10)">−</button>
-    <button (click)="change(10)">+</button>
+  <div class="range-block">
+    <div class="range-block__labels">
+      <span>0°C</span>
+      <span>250°C</span>
+    </div>
+
+    <div class="range-block__track">
+      <div class="range-block__fill"></div>
+      <div
+        class="range-block__thumb"
+        [style.left.%]="(temperature / 250) * 100"
+      ></div>
+    </div>
   </div>
-</div>
+
+  <div class="stepper-block">
+    <div class="stepper-block__label">Adjust temperature</div>
+
+    <div class="stepper">
+      <button type="button" class="stepper__btn" (click)="change(-10)">
+        Decrease
+      </button>
+      <button type="button" class="stepper__btn" (click)="change(10)">
+        Increase
+      </button>
+    </div>
+  </div>
+</section>

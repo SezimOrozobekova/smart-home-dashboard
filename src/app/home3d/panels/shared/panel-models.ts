@@ -14,10 +14,19 @@ export type DevicePanel = {
   status: string;
 };
 
-export type RoomItem = {
+export type SelectedDevice = THREE.Object3D | null;
+
+export interface RoomLightConfig {
+  ambientOff: number;
+  ambientOn: number;
+  directionalOff: number;
+  directionalOn: number;
+  color: string;
+}
+
+export interface RoomItem {
   id: string;
   name: string;
   file: string;
-};
-
-export type SelectedDevice = THREE.Object3D | null;
+  light?: RoomLightConfig;
+}

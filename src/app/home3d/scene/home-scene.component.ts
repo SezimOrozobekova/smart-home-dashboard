@@ -16,6 +16,7 @@ import * as THREE from 'three';
 
 import { RoomLoaderService } from '../services/room-loader.service';
 import { SceneSelectionService } from '../services/scene-selection.service';
+import { RoomLightConfig } from '../panels/shared/panel-models';
 
 @Component({
   selector: 'app-home-scene',
@@ -29,6 +30,7 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
   canvasHost!: ElementRef<HTMLDivElement>;
 
   @Input() roomFile = '';
+  @Input() roomLight!: RoomLightConfig;
 
   @Output() deviceSelected = new EventEmitter<THREE.Object3D>();
   @Output() selectionCleared = new EventEmitter<void>();
@@ -76,6 +78,10 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.isReady) return;
 
+    if (changes['roomLight']) {
+      this.applyRoomLight();
+    }
+
     if (changes['roomFile'] && this.roomFile) {
       this.clearSelection();
       this.loadRoom(this.roomFile);
@@ -97,7 +103,7 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     const host = this.canvasHost.nativeElement;
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color('#0f172a');
+    this.scene.background = new THREE.Color('#0b1020');
 
     this.camera = new THREE.PerspectiveCamera(
       55,
@@ -110,28 +116,74 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(host.clientWidth, host.clientHeight);
+
+    // без теней
+    this.renderer.shadowMap.enabled = false;
+
     host.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
 
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+    const ambient = new THREE.AmbientLight(0xffffff, 0.05);
+    this.scene.add(ambient);
 
-    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+    const sun = new THREE.DirectionalLight(0xffffff, 0.05);
     sun.position.set(6, 10, 8);
     this.scene.add(sun);
+
+    this.scene.userData['ambientLight'] = ambient;
+    this.scene.userData['sunLight'] = sun;
+
+    this.applyRoomLight();
   }
+
+  private applyRoomLight(): void {
+    if (!this.scene || !this.roomLight) return;
+
+    const ambient = this.scene.userData['ambientLight'] as THREE.AmbientLight | undefined;
+    const sun = this.scene.userData['sunLight'] as THREE.DirectionalLight | undefined;
+
+    if (!ambient || !sun) return;
+
+    ambient.color.set(this.roomLight.color);
+    ambient.intensity = this.roomLight.ambientOff;
+
+    sun.color.set(this.roomLight.color);
+    sun.intensity = this.roomLight.directionalOff;
+
+    this.scene.userData['ambientOff'] = this.roomLight.ambientOff;
+    this.scene.userData['ambientOn'] = this.roomLight.ambientOn;
+    this.scene.userData['sunOff'] = this.roomLight.directionalOff;
+    this.scene.userData['sunOn'] = this.roomLight.directionalOn;
+    this.scene.userData['roomLightColor'] = this.roomLight.color;
+  }
+
+  private roomInstances = new Map<string, THREE.Object3D>();
 
   private async loadRoom(file: string): Promise<void> {
     try {
-      const room = await this.roomLoader.loadRoom(file);
+      this.sceneSelection.clearAllHighlights(this.scene);
 
       if (this.currentRoom) {
-        this.scene.remove(this.currentRoom);
+        this.currentRoom.visible = false;
       }
 
+      const existing = this.roomInstances.get(file);
+      if (existing) {
+        existing.visible = true;
+        this.currentRoom = existing;
+        this.roomLoaded.emit();
+        return;
+      }
+
+      const room = await this.roomLoader.loadRoom(file);
+      room.visible = true;
+
       this.scene.add(room);
+      this.roomInstances.set(file, room);
       this.currentRoom = room;
+
       this.roomLoaded.emit();
     } catch (error) {
       console.error('Failed to load room:', error);
@@ -153,8 +205,9 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
-    const hits = this.raycaster.intersectObjects(this.scene.children, true);
-
+    const hits = this.currentRoom
+      ? this.raycaster.intersectObjects([this.currentRoom], true)
+      : [];
     this.sceneSelection.clearAllHighlights(this.scene);
 
     if (hits.length === 0) {

@@ -1,19 +1,44 @@
-<div class="lamp-card">
-  <h3>Bathroom Light</h3>
+<section class="control-section lamp-section">
+  <div class="control-section__header">
+    <div>
+      <div class="control-section__eyebrow">Lighting device</div>
+      <h4 class="control-section__title">Bathroom Light</h4>
+    </div>
 
-  <button (click)="onToggle()">
-    {{ status === 'ON' ? 'Turn off' : 'Turn on' }}
-  </button>
+    <div
+      class="status-badge"
+      [class.status-badge--on]="status === 'ON'"
+    >
+      {{ status === 'ON' ? 'On' : 'Off' }}
+    </div>
+  </div>
 
-  <div class="lamp-section">
-    <div class="lamp-label">Color</div>
+  <div class="metric-block">
+    <div class="metric-block__value">
+      {{ status === 'ON' ? 'Active' : 'Inactive' }}
+    </div>
+    <div class="metric-block__label">Current light state</div>
+  </div>
+
+  <div class="action-block">
+    <div class="action-block__label">Power control</div>
+    <button type="button" class="primary-btn" (click)="onToggle()">
+      {{ status === 'ON' ? 'Turn off' : 'Turn on' }}
+    </button>
+  </div>
+
+  <div class="palette-block">
+    <div class="palette-block__label">Light color</div>
 
     <div class="color-palette">
-      <span
+      <button
+        type="button"
+        class="color-swatch"
         *ngFor="let c of colors"
         [style.background]="c"
         (click)="selectColor(c)"
-      ></span>
+        [attr.aria-label]="'Select color ' + c"
+      ></button>
     </div>
   </div>
-</div>
+</section>

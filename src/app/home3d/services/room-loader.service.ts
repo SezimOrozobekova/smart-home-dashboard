@@ -16,13 +16,14 @@ export class RoomLoaderService {
         gltf => {
           const room = gltf.scene;
 
-          room.traverse((obj: any) => {
-            if (!obj.isMesh) return;
+          room.traverse(obj => {
+            setupDevice(obj, room);
 
-            const root = obj.parent;
-            if (!root) return;
-
-            setupDevice(root);
+            if ((obj as any).isMesh) {
+              const mesh = obj as THREE.Mesh;
+              mesh.castShadow = true;
+              mesh.receiveShadow = true;
+            }
           });
 
           resolve(room);

@@ -9,7 +9,8 @@ import { DeviceControlService } from './services/device-control.service';
 
 import {
   DevicePanel,
-  RoomItem
+  RoomItem,
+  RoomLightConfig
 } from './panels/shared/panel-models';
 import { ROOMS } from './panels/shared/rooms.data';
 
@@ -38,6 +39,16 @@ export class Home3d {
 
   get currentRoomName(): string {
     return this.rooms.find(r => r.id === this.currentRoomId)?.name ?? 'Room';
+  }
+
+  get currentRoomLight(): RoomLightConfig {
+    return this.rooms.find(r => r.id === this.currentRoomId)?.light ?? {
+      ambientOff: 0.05,
+      ambientOn: 0.9,
+      directionalOff: 0.05,
+      directionalOn: 1.2,
+      color: '#ffe8b6'
+    };
   }
 
   constructor(

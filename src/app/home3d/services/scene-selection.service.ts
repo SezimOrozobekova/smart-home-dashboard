@@ -17,6 +17,9 @@ export class SceneSelectionService {
   }
 
   highlightObject(obj: THREE.Object3D): void {
+    // лампы не красим синим вообще
+    if (obj.userData?.['type'] === 'lamp') return;
+
     obj.traverse(child => {
       if (!(child as any).isMesh) return;
 

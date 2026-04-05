@@ -1,18 +1,33 @@
-<div class="device-card kettle">
-  <div class="card-header">
-    <span class="icon">☕</span>
-    <span>Kettle</span>
+<section class="control-section kettle-section">
+  <div class="control-section__header">
+    <div>
+      <div class="control-section__eyebrow">Heating device</div>
+      <h4 class="control-section__title">Kettle</h4>
+    </div>
+
+    <div class="status-badge status-badge--active">
+      Boiling
+    </div>
   </div>
 
-  <div class="card-main">
-    <div class="big-value">{{ timeLeft }}s</div>
-    <div class="subtitle">Time remaining</div>
+  <div class="metric-block">
+    <div class="metric-block__value">
+      {{ timeLeft }}<span>s</span>
+    </div>
+    <div class="metric-block__label">Time remaining</div>
   </div>
 
-  <div class="progress">
-    <div
-      class="progress-bar"
-      [style.width.%]="progressWidth"
-    ></div>
+  <div class="progress-block">
+    <div class="progress-block__labels">
+      <span>Heating</span>
+      <span>Ready</span>
+    </div>
+
+    <div class="progress-track">
+      <div
+        class="progress-fill"
+        [style.width.%]="progressWidth"
+      ></div>
+    </div>
   </div>
-</div>
+</section>

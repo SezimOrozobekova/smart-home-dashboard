@@ -13,6 +13,7 @@
     <div class="board__stage">
       <app-home-scene
         [roomFile]="currentRoomFile"
+        [roomLight]="currentRoomLight"
         (deviceSelected)="onDeviceSelected($event)"
         (selectionCleared)="onSelectionCleared()"
         (roomLoaded)="onRoomLoaded()"
