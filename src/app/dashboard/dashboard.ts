@@ -51,6 +51,18 @@ interface TemperatureChartState {
   max: number;
 }
 
+interface RoomPolygon {
+  id: string;
+  floor: 'first' | 'second';
+  name: string;
+  devices: number;
+  points: string;
+  dotX: number;
+  dotY: number;
+  cardX: number;
+  cardY: number;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -96,7 +108,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     },
     {
       title: 'Rooms in Home',
-      value: '6',
+      value: '8',
       subtitle: '',
       icon: '🏠',
       type: 'default'
@@ -140,9 +152,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       peakWindow: 'Saturday 18:00 – 20:00'
     },
     month: {
-      labels: [
-        '1', '3', '5', '7', '9', '11', '13', '15', '17', '19', '21', '23', '25', '27', '29'
-      ],
+      labels: ['1', '3', '5', '7', '9', '11', '13', '15', '17', '19', '21', '23', '25', '27', '29'],
       data: [13, 11, 15, 14, 16, 18, 17, 15, 19, 20, 18, 17, 16, 18, 21],
       total: '248.0',
       peakWindow: 'Day 29 · 18:00 – 20:00'
@@ -165,9 +175,7 @@ export class Dashboard implements AfterViewInit, OnDestroy {
       max: 24
     },
     month: {
-      labels: [
-        '1', '3', '5', '7', '9', '11', '13', '15', '17', '19', '21', '23', '25', '27', '29'
-      ],
+      labels: ['1', '3', '5', '7', '9', '11', '13', '15', '17', '19', '21', '23', '25', '27', '29'],
       data: [18, 19, 20, 21, 19, 22, 23, 24, 22, 21, 20, 19, 18, 20, 21],
       avg: '20.5',
       min: 18,
@@ -193,12 +201,124 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     { time: '17:15', text: 'Kitchen Oven turned OFF' }
   ];
 
+  selectedFloor: 'first' | 'second' = 'first';
+  activeRoomId: string | null = null;
+
+  floorImages: Record<'first' | 'second', string> = {
+    first: 'assets/images/image1.jpeg',
+    second: 'assets/images/room2.png'
+  };
+
+  roomPolygons: RoomPolygon[] = [
+    {
+      id: 'first-upper-left',
+      floor: 'first',
+      name: 'Office',
+      devices: 2,
+      points: '3,4      40.5,4      41, 51      3,51',
+      dotX: 24,
+      dotY: 24,
+      cardX: 24,
+      cardY: 40
+    },
+    {
+      id: 'first-upper-right',
+      floor: 'first',
+      name: 'Living room',
+      devices: 3,
+      points: '43.5, 3.5    97, 3.5     97.5, 50.5        43.5, 51',
+      dotX: 79,
+      dotY: 24,
+      cardX: 79,
+      cardY: 13
+    },
+    {
+      id: 'first-lower-left',
+      floor: 'first',
+      name: 'Hall',
+      devices: 4,
+      points: '3,55         61.5,54.5      61.5,97        3,97',
+      dotX: 34,
+      dotY: 75,
+      cardX: 34,
+      cardY: 64
+    },
+    {
+      id: 'first-lower-right',
+      floor: 'first',
+      name: 'Kitchen',
+      devices: 2,
+      points: '64.5, 54.5      97.5,54.5      98,96.5        64.5,97',
+      dotX: 83,
+      dotY: 75,
+      cardX: 83,
+      cardY: 64
+    },
+
+    {
+      id: 'second-upper-left',
+      floor: 'second',
+      name: 'Guest room',
+      devices: 2,
+      points: '2.5,3      40,3      40, 51      2.5,51',
+      dotX: 21,
+      dotY: 24,
+      cardX: 21,
+      cardY: 13
+    },
+    {
+      id: 'second-upper-right',
+      floor: 'second',
+      name: 'Bedroom 1',
+      devices: 3,
+      points: '43.5, 3    97, 3     97.5, 50.5        43.5, 51',
+      dotX: 78,
+      dotY: 24,
+      cardX: 78,
+      cardY: 13
+    },
+    {
+      id: 'second-lower-left',
+      floor: 'second',
+      name: 'Hall / Stairs',
+      devices: 1,
+      points: '2.5,55         61,54.5      61,98        2.5,98',
+      dotX: 31,
+      dotY: 74,
+      cardX: 31,
+      cardY: 63
+    },
+    {
+      id: 'second-lower-right',
+      floor: 'second',
+      name: 'Badroom 2',
+      devices: 4,
+      points: '64, 54.5      97.5,54.5      98,98        64,98',
+      dotX: 81,
+      dotY: 74,
+      cardX: 81,
+      cardY: 63
+    }
+  ];
+
   get selectedEnergySummary(): EnergyChartState {
     return this.energyChartMock[this.energyFilter];
   }
 
   get selectedTemperatureSummary(): TemperatureChartState {
     return this.temperatureChartMock[this.temperatureFilter];
+  }
+
+  get selectedFloorImage(): string {
+    return this.floorImages[this.selectedFloor];
+  }
+
+  get visibleRooms(): RoomPolygon[] {
+    return this.roomPolygons.filter((room) => room.floor === this.selectedFloor);
+  }
+
+  get activeRoom(): RoomPolygon | undefined {
+    return this.visibleRooms.find((room) => room.id === this.activeRoomId);
   }
 
   ngAfterViewInit(): void {
@@ -225,6 +345,10 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     return `${item.time}-${item.text}`;
   }
 
+  trackByRoom(index: number, room: RoomPolygon): string {
+    return room.id;
+  }
+
   onEnergyFilterChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value as ChartRange;
     this.energyFilter = value;
@@ -235,6 +359,15 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     const value = (event.target as HTMLSelectElement).value as ChartRange;
     this.temperatureFilter = value;
     this.createTemperatureChart();
+  }
+
+  selectFloor(floor: 'first' | 'second'): void {
+    this.selectedFloor = floor;
+    this.activeRoomId = null;
+  }
+
+  selectRoom(roomId: string): void {
+    this.activeRoomId = this.activeRoomId === roomId ? null : roomId;
   }
 
   private createEnergyChart(): void {
@@ -393,20 +526,5 @@ export class Dashboard implements AfterViewInit, OnDestroy {
     });
 
     setTimeout(() => this.temperatureChart?.resize(), 0);
-  }
-
-  selectedFloor: 'first' | 'second' = 'first';
-
-  floorImages: Record<'first' | 'second', string> = {
-    first: 'assets/images/room1.png',
-    second: 'assets/images/room1.png'
-  };
-
-  get selectedFloorImage(): string {
-    return this.floorImages[this.selectedFloor];
-  }
-
-  selectFloor(floor: 'first' | 'second'): void {
-    this.selectedFloor = floor;
   }
 }

@@ -7,7 +7,7 @@
     <div class="section-container">
       <div class="dashboard-hero">
         <h1 class="dashboard-title">
-          Smart Home Energy Overview
+          Smart Home Energy
         </h1>
 
         <p class="dashboard-subtitle">
@@ -45,9 +45,91 @@
     </div>
   </section>
 
+  <!-- SECTION 3: FLOOR OVERVIEW -->
+  <section class="dashboard-section section-floor-overview">
+    <div class="section-container">
+      <div class="floor-overview-header" @fadeUp>
+        <h2 class="floor-overview-title">Rooms overview</h2>
+
+        <div class="floor-switcher">
+          <button
+            type="button"
+            class="floor-switch-btn"
+            [class.active]="selectedFloor === 'first'"
+            (click)="selectFloor('first')"
+          >
+            First floor
+          </button>
+
+          <button
+            type="button"
+            class="floor-switch-btn"
+            [class.active]="selectedFloor === 'second'"
+            (click)="selectFloor('second')"
+          >
+            Second floor
+          </button>
+        </div>
+      </div>
+
+      <mat-card class="summary-card floor-plan-card" @fadeUp>
+        <div class="floor-plan-image-wrap">
+          <!-- FLOOR IMAGE -->
+          <img
+            class="floor-plan-image"
+            [src]="selectedFloorImage"
+            [alt]="selectedFloor === 'first' ? 'First floor plan' : 'Second floor plan'"
+          />
+
+          <!-- ===================================================== -->
+          <!-- HOTSPOT LAYER: clickable room areas with orange fill -->
+          <!-- ===================================================== -->
+          <svg
+            class="floor-plan-overlay"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <g *ngFor="let room of visibleRooms; trackBy: trackByRoom">
+              <polygon
+                class="room-polygon"
+                [class.active]="activeRoomId === room.id"
+                [attr.points]="room.points"
+                (click)="selectRoom(room.id)"
+              ></polygon>
+            </g>
+          </svg>
+
+          <!-- ===================================================== -->
+          <!-- HOTSPOT INFO: card and dot are positioned separately  -->
+          <!-- ===================================================== -->
+
+          <!-- HOTSPOT CARD -->
+          <div
+            *ngIf="activeRoom as room"
+            class="hotspot-card"
+            [style.left.%]="room.cardX"
+            [style.top.%]="room.cardY"
+          >
+            <div class="hotspot-title">{{ room.name }}</div>
+            <div class="hotspot-subtitle">{{ room.devices }} Devices Connected</div>
+          </div>
+
+          <!-- HOTSPOT DOT -->
+          <div
+            *ngIf="activeRoom as room"
+            class="hotspot-dot"
+            [style.left.%]="room.dotX"
+            [style.top.%]="room.dotY"
+          ></div>
+        </div>
+      </mat-card>
+    </div>
+  </section>
   <!-- SECTION 2: OVERVIEW -->
   <section class="dashboard-section section-overview">
+
     <div class="section-container">
+
       <div class="overview-grid">
         <!-- Energy chart -->
         <mat-card class="summary-card chart-card" @fadeUp>
@@ -153,56 +235,6 @@
     </div>
   </section>
 
-  <!-- SECTION 3: FLOOR OVERVIEW -->
-  <section class="dashboard-section section-floor-overview">
-    <div class="section-container">
-      <div class="floor-overview-header" @fadeUp>
-        <h2 class="floor-overview-title">Overview</h2>
 
-        <div class="floor-switcher">
-          <button
-            type="button"
-            class="floor-switch-btn"
-            [class.active]="selectedFloor === 'first'"
-            (click)="selectFloor('first')"
-          >
-            First floor
-          </button>
-
-          <button
-            type="button"
-            class="floor-switch-btn"
-            [class.active]="selectedFloor === 'second'"
-            (click)="selectFloor('second')"
-          >
-            Second floor
-          </button>
-        </div>
-      </div>
-
-      <mat-card class="summary-card floor-plan-card" @fadeUp>
-        <div class="floor-plan-image-wrap">
-          <img
-            class="floor-plan-image"
-            [src]="selectedFloorImage"
-            [alt]="selectedFloor === 'first' ? 'First floor plan' : 'Second floor plan'"
-          />
-
-          <!-- optional hotspot example -->
-          <div
-            class="room-hotspot"
-            *ngIf="selectedFloor === 'second'"
-          >
-            <div class="hotspot-card">
-              <div class="hotspot-title">Bedroom 1</div>
-              <div class="hotspot-subtitle">3 Devices Connected</div>
-            </div>
-
-            <div class="hotspot-dot"></div>
-          </div>
-        </div>
-      </mat-card>
-    </div>
-  </section>
 
 </div>
