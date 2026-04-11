@@ -204,6 +204,13 @@ export class RoomEditorSceneService {
   }
 
   private onPointerDown = (event: PointerEvent): void => {
+    const activeAxis = (this.transformControls as any).axis;
+
+    // Если курсор сейчас на gizmo, не трогаем selection
+    if (activeAxis) {
+      return;
+    }
+
     const rect = this.renderer.domElement.getBoundingClientRect();
 
     this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
