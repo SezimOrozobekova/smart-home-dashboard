@@ -1,14 +1,40 @@
-import { Component } from '@angular/core';
-import { CommonModule, KeyValue } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectorRef
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { switchMap } from 'rxjs/operators';
 
-type Device = {
+type HomeResponse = {
+  id: string;
+  name: string;
+  address: string;
+  ownerId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type DeviceItem = {
+  id: string;
   name: string;
   type: string;
   room: string;
   power: number;
   basePower: number;
   active: boolean;
-  updatedAt: string;
+  online: boolean;
+  updatedAt: string | null;
+};
+
+type RoomDevices = {
+  roomId: string;
+  roomName: string;
+  activeDevices: number;
+  totalPower: number;
+  devices: DeviceItem[];
 };
 
 @Component({
@@ -18,107 +44,126 @@ type Device = {
   templateUrl: './devices.html',
   styleUrl: './devices.css'
 })
-export class Devices {
-  devicesByRoom: Record<string, Device[]> = {
-    Bathroom: [
-      {
-        name: 'Washing Machine',
-        type: 'Laundry',
-        room: 'Bathroom',
-        power: 420,
-        basePower: 420,
-        active: false,
-        updatedAt: '2 min ago'
+export class Devices implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly apiUrl = '/api';
+
+  rooms: RoomDevices[] = [];
+  loading = false;
+  toggling = false;
+  error = '';
+  selectedHomeName = '';
+  selectedHomeId = '';
+
+  ngOnInit(): void {
+    setTimeout(() => {
+      this.loadDevices();
+    });
+  }
+
+  loadDevices(): void {
+    this.loading = true;
+    this.error = '';
+    this.cdr.detectChanges();
+
+    this.http.get<HomeResponse[]>(`${this.apiUrl}/homes`)
+      .pipe(
+        switchMap((homes) => {
+          if (!homes.length) {
+            throw new Error('No homes found');
+          }
+
+          const home = homes[0];
+          this.selectedHomeId = home.id;
+          this.selectedHomeName = home.name;
+
+          return this.http.get<RoomDevices[]>(
+            `${this.apiUrl}/homes/${home.id}/devices-by-room`
+          );
+        })
+      )
+      .subscribe({
+        next: (rooms) => {
+          this.rooms = rooms;
+          this.loading = false;
+          this.error = '';
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load devices:', err);
+          this.error = err?.message || 'Failed to load devices';
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  toggleDevice(device: DeviceItem): void {
+    if (this.toggling) {
+      return;
+    }
+
+    this.toggling = true;
+    this.error = '';
+    this.cdr.detectChanges();
+
+    this.http.post(`${this.apiUrl}/device-states/${device.id}/toggle`, {}).subscribe({
+      next: () => {
+        this.reloadDevicesByRoom();
       },
-      {
-        name: 'Water Heater',
-        type: 'Heating',
-        room: 'Bathroom',
-        power: 850,
-        basePower: 850,
-        active: true,
-        updatedAt: 'Just now'
+      error: (err) => {
+        console.error('Failed to toggle device:', err);
+        this.error = 'Failed to toggle device';
+        this.toggling = false;
+        this.cdr.detectChanges();
       }
-    ],
-    Kitchen: [
-      {
-        name: 'Fridge',
-        type: 'Cooling',
-        room: 'Kitchen',
-        power: 180,
-        basePower: 180,
-        active: true,
-        updatedAt: 'Just now'
-      },
-      {
-        name: 'Electric Kettle',
-        type: 'Heating',
-        room: 'Kitchen',
-        power: 0,
-        basePower: 2000,
-        active: false,
-        updatedAt: '5 min ago'
-      },
-      {
-        name: 'Stove',
-        type: 'Cooking',
-        room: 'Kitchen',
-        power: 0,
-        basePower: 1500,
-        active: false,
-        updatedAt: '12 min ago'
-      }
-    ],
-    LivingRoom: [
-      {
-        name: 'TV',
-        type: 'Entertainment',
-        room: 'Living Room',
-        power: 120,
-        basePower: 120,
-        active: true,
-        updatedAt: 'Just now'
-      },
-      {
-        name: 'Computer',
-        type: 'Workstation',
-        room: 'Living Room',
-        power: 450,
-        basePower: 450,
-        active: true,
-        updatedAt: '1 min ago'
-      },
-      {
-        name: 'Main Light',
-        type: 'Lighting',
-        room: 'Living Room',
-        power: 0,
-        basePower: 18,
-        active: false,
-        updatedAt: '8 min ago'
-      }
-    ]
-  };
-
-  toggleDevice(device: Device): void {
-    device.active = !device.active;
-    device.power = device.active ? device.basePower : 0;
-    device.updatedAt = 'Just now';
+    });
   }
 
-  trackByRoom(index: number, room: KeyValue<string, Device[]>): string {
-    return room.key;
+  reloadDevicesByRoom(): void {
+    if (!this.selectedHomeId) {
+      this.toggling = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.http
+      .get<RoomDevices[]>(`${this.apiUrl}/homes/${this.selectedHomeId}/devices-by-room`)
+      .subscribe({
+        next: (rooms) => {
+          this.rooms = rooms;
+          this.toggling = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to reload devices:', err);
+          this.error = 'Failed to refresh devices';
+          this.toggling = false;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
-  trackByDevice(index: number, device: Device): string {
-    return `${device.room}-${device.name}`;
+  trackByRoom(index: number, room: RoomDevices): string {
+    return room.roomId;
   }
 
-  getActiveCount(roomDevices: Device[]): number {
-    return roomDevices.filter(device => device.active).length;
+  trackByDevice(index: number, device: DeviceItem): string {
+    return device.id;
   }
 
-  getTotalPower(roomDevices: Device[]): number {
-    return roomDevices.reduce((sum, device) => sum + device.power, 0);
+  formatUpdatedAt(value: string | null): string {
+    if (!value) {
+      return 'No updates';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleString();
   }
 }
