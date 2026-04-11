@@ -26,8 +26,8 @@ export class RoomEditorSceneService {
   private resizeObserver!: ResizeObserver;
 
   private roomObjects: THREE.Object3D[] = [];
-  private roomWidth = 12;
-  private roomDepth = 12;
+  private roomWidth = 8;
+  private roomDepth = 8;
   private roomHeight = 4;
 
   constructor(private zone: NgZone) {}
