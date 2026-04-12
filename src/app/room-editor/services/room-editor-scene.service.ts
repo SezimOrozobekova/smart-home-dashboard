@@ -30,6 +30,8 @@ export class RoomEditorSceneService {
   private roomDepth = 8;
   private roomHeight = 4;
 
+  private lastValidPosition = new THREE.Vector3();
+
   constructor(private zone: NgZone) {}
 
   init(hostRef: ElementRef<HTMLDivElement>): void {
@@ -63,6 +65,25 @@ export class RoomEditorSceneService {
 
     this.transformControls.addEventListener('dragging-changed', (event) => {
       this.orbitControls.enabled = !event.value;
+    });
+
+    this.transformControls.addEventListener('mouseDown', () => {
+      if (this.selectedObject) {
+        this.lastValidPosition.copy(this.selectedObject.position);
+      }
+    });
+
+    this.transformControls.addEventListener('objectChange', () => {
+      if (!this.selectedObject) return;
+
+      if (
+        !this.isInsideRoom(this.selectedObject) ||
+        this.intersectsWithOtherObjects(this.selectedObject)
+      ) {
+        this.selectedObject.position.copy(this.lastValidPosition);
+      } else {
+        this.lastValidPosition.copy(this.selectedObject.position);
+      }
     });
 
     this.scene.add(this.transformControls.getHelper());
@@ -119,10 +140,10 @@ export class RoomEditorSceneService {
     this.scene.add(leftWall);
     this.roomObjects.push(leftWall);
 
-    const grid = new THREE.GridHelper(
-      Math.max(this.roomWidth, this.roomDepth),
-      Math.max(this.roomWidth, this.roomDepth)
-    );
+    const gridSize = Math.max(this.roomWidth, this.roomDepth);
+    const gridDivisions = Math.max(Math.round(gridSize), 1);
+
+    const grid = new THREE.GridHelper(gridSize, gridDivisions);
     this.scene.add(grid);
     this.roomObjects.push(grid);
   }
@@ -131,6 +152,16 @@ export class RoomEditorSceneService {
     this.roomWidth = width;
     this.roomDepth = depth;
     this.createRoom();
+
+    if (this.selectedObject) {
+      if (
+        !this.isInsideRoom(this.selectedObject) ||
+        this.intersectsWithOtherObjects(this.selectedObject)
+      ) {
+        this.transformControls.detach();
+        this.selectedObject = null;
+      }
+    }
   }
 
   private clearRoom(): void {
@@ -158,12 +189,20 @@ export class RoomEditorSceneService {
           model.scale.setScalar(modelItem.scale);
         }
 
-        const box = new THREE.Box3().setFromObject(model);
-        const minY = box.min.y;
+        const initialBox = new THREE.Box3().setFromObject(model);
+        const minY = initialBox.min.y;
 
-        model.position.set(0, -minY, 0);
         model.userData['modelId'] = modelItem.id;
         model.userData['isPlacedObject'] = true;
+
+        const freePosition = this.findFreePosition(model, minY);
+
+        if (!freePosition) {
+          console.warn('No free space available for new object');
+          return;
+        }
+
+        model.position.copy(freePosition);
 
         this.scene.add(model);
         this.placedObjects.push(model);
@@ -193,6 +232,7 @@ export class RoomEditorSceneService {
     this.selectedObject = object;
 
     if (object) {
+      this.lastValidPosition.copy(object.position);
       this.transformControls.attach(object);
     } else {
       this.transformControls.detach();
@@ -206,7 +246,6 @@ export class RoomEditorSceneService {
   private onPointerDown = (event: PointerEvent): void => {
     const activeAxis = (this.transformControls as any).axis;
 
-    // Если курсор сейчас на gizmo, не трогаем selection
     if (activeAxis) {
       return;
     }
@@ -254,6 +293,59 @@ export class RoomEditorSceneService {
     this.orbitControls.update();
     this.renderer.render(this.scene, this.camera);
   };
+
+  private intersectsWithOtherObjects(target: THREE.Object3D): boolean {
+    const targetBox = new THREE.Box3().setFromObject(target);
+
+    for (const obj of this.placedObjects) {
+      if (obj === target) continue;
+
+      const objectBox = new THREE.Box3().setFromObject(obj);
+
+      if (targetBox.intersectsBox(objectBox)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private isInsideRoom(target: THREE.Object3D): boolean {
+    const box = new THREE.Box3().setFromObject(target);
+
+    const halfWidth = this.roomWidth / 2;
+    const halfDepth = this.roomDepth / 2;
+
+    return (
+      box.min.x >= -halfWidth &&
+      box.max.x <= halfWidth &&
+      box.min.z >= -halfDepth &&
+      box.max.z <= halfDepth
+    );
+  }
+
+  private findFreePosition(model: THREE.Object3D, minY: number): THREE.Vector3 | null {
+    const step = 1.5;
+    const maxRadius = 10;
+
+    for (let radius = 0; radius <= maxRadius; radius++) {
+      for (let x = -radius; x <= radius; x++) {
+        for (let z = -radius; z <= radius; z++) {
+          const posX = x * step;
+          const posZ = z * step;
+
+          model.position.set(posX, -minY, posZ);
+
+          if (!this.isInsideRoom(model)) continue;
+          if (this.intersectsWithOtherObjects(model)) continue;
+
+          return new THREE.Vector3(posX, -minY, posZ);
+        }
+      }
+    }
+
+    return null;
+  }
 
   destroy(): void {
     if (this.rafId) cancelAnimationFrame(this.rafId);
