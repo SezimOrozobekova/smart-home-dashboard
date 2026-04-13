@@ -11,13 +11,17 @@
     </header>
 
     <div class="board__stage">
-      <app-home-scene
-        [roomFile]="currentRoomFile"
-        [roomLight]="currentRoomLight"
-        (deviceSelected)="onDeviceSelected($event)"
-        (selectionCleared)="onSelectionCleared()"
-        (roomLoaded)="onRoomLoaded()"
-      ></app-home-scene>
+      @if (!isLoadingRooms() && currentRoom()) {
+        <app-home-scene
+          [roomLayout]="currentRoom()"
+          [roomLight]="currentRoomLight"
+          (deviceSelected)="onDeviceSelected($event)"
+          (selectionCleared)="onSelectionCleared()"
+          (roomLoaded)="onRoomLoaded()"
+        ></app-home-scene>
+      } @else {
+        <div class="rooms__status">Loading room...</div>
+      }
     </div>
   </section>
 
@@ -25,14 +29,29 @@
     <div class="rooms">
       <div class="rooms__title">Rooms</div>
 
-      <button
-        class="room-btn"
-        *ngFor="let room of rooms"
-        [class.active]="room.id === currentRoomId"
-        (click)="selectRoom(room)"
-      >
-        {{ room.name }}
-      </button>
+      @if (isLoadingRooms()) {
+        <div class="rooms__status">Loading rooms...</div>
+      }
+
+      @if (errorMessage()) {
+        <div class="rooms__status rooms__status--error">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      @if (!isLoadingRooms() && !errorMessage() && rooms().length === 0) {
+        <div class="rooms__status">No rooms found</div>
+      }
+
+      @for (room of rooms(); track room.roomId) {
+        <button
+          class="room-btn"
+          [class.active]="room.roomId === currentRoom()?.roomId"
+          (click)="selectRoom(room.roomId)"
+        >
+          {{ room.roomName }}
+        </button>
+      }
     </div>
 
     <div class="panel__body">

@@ -14,9 +14,10 @@ import {
 import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
 
-import { RoomLoaderService } from '../services/room-loader.service';
 import { SceneSelectionService } from '../services/scene-selection.service';
 import { RoomLightConfig } from '../panels/shared/panel-models';
+import { DeviceModelLoaderService } from '../services/device-model-loader.service';
+import { RoomLayoutItem, RoomLayoutResponse } from '../models/room-layout.models';
 
 @Component({
   selector: 'app-home-scene',
@@ -29,7 +30,7 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('canvasHost', { static: true })
   canvasHost!: ElementRef<HTMLDivElement>;
 
-  @Input() roomFile = '';
+  @Input() roomLayout: RoomLayoutResponse | null = null;
   @Input() roomLight!: RoomLightConfig;
 
   @Output() deviceSelected = new EventEmitter<THREE.Object3D>();
@@ -45,14 +46,18 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
   private mouse = new THREE.Vector2();
 
   private currentRoom: THREE.Object3D | null = null;
+  private deviceObjects: THREE.Object3D[] = [];
+
   private rafId: number | null = null;
   private resizeObs!: ResizeObserver;
   private isReady = false;
 
+  private layoutRenderVersion = 0;
+
   constructor(
     private zone: NgZone,
-    private roomLoader: RoomLoaderService,
-    private sceneSelection: SceneSelectionService
+    private sceneSelection: SceneSelectionService,
+    private modelLoader: DeviceModelLoaderService
   ) {}
 
   async ngAfterViewInit(): Promise<void> {
@@ -69,8 +74,8 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
       this.start();
       this.isReady = true;
 
-      if (this.roomFile) {
-        this.loadRoom(this.roomFile);
+      if (this.roomLayout) {
+        void this.loadRoomFromLayout();
       }
     });
   }
@@ -82,9 +87,8 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
       this.applyRoomLight();
     }
 
-    if (changes['roomFile'] && this.roomFile) {
-      this.clearSelection();
-      this.loadRoom(this.roomFile);
+    if (changes['roomLayout'] && this.roomLayout) {
+      void this.loadRoomFromLayout();
     }
   }
 
@@ -116,41 +120,43 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(host.clientWidth, host.clientHeight);
-
-    // без теней
-    this.renderer.shadowMap.enabled = false;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.shadowMap.enabled = true;
 
     host.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
+    this.controls.target.set(0, 1.2, 0);
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.05);
+    this.createLights();
+    this.applyRoomLight();
+  }
+
+  private createLights(): void {
+    const ambient = new THREE.AmbientLight(0xffffff, 1.6);
     this.scene.add(ambient);
 
-    const sun = new THREE.DirectionalLight(0xffffff, 0.05);
-    sun.position.set(6, 10, 8);
-    this.scene.add(sun);
+    const directional = new THREE.DirectionalLight(0xffffff, 1.5);
+    directional.position.set(5, 8, 6);
+    directional.castShadow = true;
+    directional.shadow.mapSize.width = 2048;
+    directional.shadow.mapSize.height = 2048;
+    this.scene.add(directional);
 
     this.scene.userData['ambientLight'] = ambient;
-    this.scene.userData['sunLight'] = sun;
-
-    this.applyRoomLight();
+    this.scene.userData['sunLight'] = directional;
   }
 
   private applyRoomLight(): void {
     if (!this.scene || !this.roomLight) return;
 
-    const ambient = this.scene.userData['ambientLight'] as THREE.AmbientLight | undefined;
     const sun = this.scene.userData['sunLight'] as THREE.DirectionalLight | undefined;
 
-    if (!ambient || !sun) return;
-
-    ambient.color.set(this.roomLight.color);
-    ambient.intensity = this.roomLight.ambientOff;
+    if (!sun) return;
 
     sun.color.set(this.roomLight.color);
-    sun.intensity = this.roomLight.directionalOff;
+    sun.intensity = this.roomLight.directionalOn ?? 1.5;
 
     this.scene.userData['ambientOff'] = this.roomLight.ambientOff;
     this.scene.userData['ambientOn'] = this.roomLight.ambientOn;
@@ -159,35 +165,153 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.scene.userData['roomLightColor'] = this.roomLight.color;
   }
 
-  private roomInstances = new Map<string, THREE.Object3D>();
-
-  private async loadRoom(file: string): Promise<void> {
-    try {
-      this.sceneSelection.clearAllHighlights(this.scene);
-
-      if (this.currentRoom) {
-        this.currentRoom.visible = false;
-      }
-
-      const existing = this.roomInstances.get(file);
-      if (existing) {
-        existing.visible = true;
-        this.currentRoom = existing;
-        this.roomLoaded.emit();
-        return;
-      }
-
-      const room = await this.roomLoader.loadRoom(file);
-      room.visible = true;
-
-      this.scene.add(room);
-      this.roomInstances.set(file, room);
-      this.currentRoom = room;
-
-      this.roomLoaded.emit();
-    } catch (error) {
-      console.error('Failed to load room:', error);
+  private async loadRoomFromLayout(): Promise<void> {
+    if (!this.roomLayout) {
+      return;
     }
+
+    const renderVersion = ++this.layoutRenderVersion;
+
+    this.sceneSelection.clearAllHighlights(this.scene);
+    this.clearSelection();
+    this.clearDeviceObjects();
+    this.buildRoomShell(this.roomLayout.roomWidth, this.roomLayout.roomDepth);
+
+    for (const item of this.roomLayout.items) {
+      try {
+        const object = await this.createDeviceObject(item);
+
+        if (renderVersion !== this.layoutRenderVersion) {
+          return;
+        }
+
+        this.scene.add(object);
+        this.deviceObjects.push(object);
+      } catch (error) {
+        console.error('Failed to load device model:', item, error);
+      }
+    }
+
+    if (renderVersion === this.layoutRenderVersion) {
+      this.roomLoaded.emit();
+    }
+  }
+
+  private buildRoomShell(width: number, depth: number): void {
+    if (this.currentRoom) {
+      this.scene.remove(this.currentRoom);
+      this.currentRoom = null;
+    }
+
+    const roomGroup = new THREE.Group();
+    roomGroup.name = 'room-shell';
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(width, depth),
+      new THREE.MeshStandardMaterial({ color: '#8b7355' })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    floor.name = 'floor';
+    roomGroup.add(floor);
+
+    const wallMaterial = new THREE.MeshStandardMaterial({
+      color: '#dbe3ea',
+      side: THREE.DoubleSide
+    });
+    const wallHeight = 4;
+
+    const backWall = new THREE.Mesh(
+      new THREE.PlaneGeometry(width, wallHeight),
+      wallMaterial
+    );
+    backWall.position.set(0, wallHeight / 2, -depth / 2);
+    roomGroup.add(backWall);
+
+    const leftWall = new THREE.Mesh(
+      new THREE.PlaneGeometry(depth, wallHeight),
+      wallMaterial
+    );
+    leftWall.rotation.y = Math.PI / 2;
+    leftWall.position.set(-width / 2, wallHeight / 2, 0);
+    roomGroup.add(leftWall);
+
+    const grid = new THREE.GridHelper(
+      Math.max(width, depth),
+      Math.max(Math.round(Math.max(width, depth)), 1)
+    );
+    roomGroup.add(grid);
+
+    this.scene.add(roomGroup);
+    this.currentRoom = roomGroup;
+  }
+
+  private async createDeviceObject(item: RoomLayoutItem): Promise<THREE.Object3D> {
+    const typeCode = item.deviceTypeCode.toLowerCase();
+    const object = await this.modelLoader.loadDeviceModel(item.deviceTypeCode);
+
+    object.name = item.name;
+    object.userData['device'] = true;
+    object.userData['deviceId'] = item.deviceId;
+    object.userData['deviceTypeId'] = item.deviceTypeId;
+    object.userData['type'] = typeCode;
+
+    object.position.set(item.positionX, item.positionY, item.positionZ);
+    object.rotation.set(item.rotationX, item.rotationY, item.rotationZ);
+    object.scale.set(item.scaleX, item.scaleY, item.scaleZ);
+
+    if (typeCode === 'lamp') {
+      const light = new THREE.SpotLight(
+        item.isActive ? '#ffe8b6' : '#ffffff',
+        item.isActive ? 18 : 0,
+        8,
+        Math.PI / 5,
+        0.35,
+        1
+      );
+
+      light.position.set(0, 1.4, 0);
+      light.target.position.set(0, 0, 0);
+
+      object.add(light);
+      object.add(light.target);
+
+      object.userData['isOn'] = item.isActive;
+      object.userData['light'] = light;
+      object.userData['defaultIntensity'] = 18;
+    }
+
+    if (typeCode === 'fridge') {
+      object.userData['temperature'] = 4;
+      object.userData['minTemp'] = -5;
+      object.userData['maxTemp'] = 10;
+    }
+
+    if (typeCode === 'stove') {
+      object.userData['temperature'] = 120;
+    }
+
+    if (typeCode === 'kettle') {
+      object.userData['timeLeft'] = 120;
+    }
+
+    object.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+      }
+    });
+
+    return object;
+  }
+
+  private clearDeviceObjects(): void {
+    for (const obj of this.deviceObjects) {
+      this.scene.remove(obj);
+    }
+
+    this.deviceObjects = [];
   }
 
   private attachEvents(): void {
@@ -205,9 +329,9 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
-    const hits = this.currentRoom
-      ? this.raycaster.intersectObjects([this.currentRoom], true)
-      : [];
+
+    const hits = this.raycaster.intersectObjects(this.deviceObjects, true);
+
     this.sceneSelection.clearAllHighlights(this.scene);
 
     if (hits.length === 0) {

@@ -1,0 +1,132 @@
+<div class="devices-page">
+  <div class="devices-shell">
+
+    <div class="devices-hero">
+      <div class="devices-hero-copy">
+        <div class="eyebrow">Smart home devices</div>
+        <h1 class="page-title">Devices</h1>
+        <p class="page-subtitle">
+          Manage all devices connected to your rooms.
+        </p>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="devices-state">
+      Loading devices...
+    </div>
+
+    <div *ngIf="errorMessage && !isLoading" class="devices-state devices-state-error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && devices.length === 0" class="devices-state">
+      No devices found
+    </div>
+
+    <div class="table-wrapper" *ngIf="devices.length > 0">
+
+      <table class="devices-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Room</th>
+          <th>Model</th>
+          <th>Firmware</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr *ngFor="let device of devices; trackBy: trackByDevice">
+
+          <td class="device-name">
+            {{ device.name }}
+          </td>
+
+          <td>
+            {{ getDeviceTypeLabel(device) }}
+          </td>
+
+          <td>
+            {{ getRoomLabel(device) }}
+          </td>
+
+          <td>
+            {{ device.model || '-' }}
+          </td>
+
+          <td>
+            {{ device.firmwareVersion || '-' }}
+          </td>
+
+          <td>
+            <span class="status-badge"
+                  [class.active]="device.isActive">
+              {{ device.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
+          <td>
+            {{ formatDate(device.createdAt) }}
+          </td>
+
+          <td class="actions">
+            <button
+              class="delete-btn"
+              (click)="openDeleteModal(device)"
+            >
+              Delete
+            </button>
+          </td>
+
+        </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+
+<div class="modal-backdrop"
+     *ngIf="isDeleteModalOpen"
+     (click)="closeDeleteModal()">
+
+  <div class="modal-card"
+       (click)="$event.stopPropagation()">
+
+    <h2>Delete {{ deviceToDelete?.name }}?</h2>
+
+    <p class="modal-subtitle">
+      This will remove the device and its layout/state data.
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+        class="secondary-btn"
+        (click)="closeDeleteModal()">
+        Cancel
+      </button>
+
+      <button
+        class="danger-btn"
+        [disabled]="isDeleting"
+        (click)="deleteDevice()">
+
+        {{ isDeleting ? 'Deleting...' : 'Delete' }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

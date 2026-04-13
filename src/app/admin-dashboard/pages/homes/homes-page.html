@@ -1,0 +1,96 @@
+<div class="homes-page">
+  <div class="homes-shell">
+    <div class="homes-hero">
+      <div class="homes-hero-copy">
+        <div class="eyebrow">Admin management</div>
+        <h1 class="page-title">Homes</h1>
+        <p class="page-subtitle">
+          Create and manage homes before assigning rooms and devices.
+        </p>
+      </div>
+
+      <button class="create-btn" type="button" (click)="openCreateModal()">
+        Add home
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="homes-state">
+      Loading homes...
+    </div>
+
+    <div *ngIf="errorMessage && !isLoading" class="homes-state homes-state-error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && homes.length === 0" class="homes-state">
+      No homes found
+    </div>
+
+    <div class="homes-grid" *ngIf="!isLoading && homes.length > 0">
+      <article
+        class="home-card"
+        *ngFor="let home of homes; trackBy: trackByHome"
+      >
+        <div class="home-card-top">
+          <div class="home-kicker">Home</div>
+          <h2 class="home-name">{{ home.name }}</h2>
+        </div>
+
+        <div class="home-address">
+          {{ home.address || 'No address specified' }}
+        </div>
+
+        <div class="home-meta">
+          <div class="meta-item">
+            <span class="meta-label">Created</span>
+            <span class="meta-value">{{ formatDate(home.createdAt) }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Updated</span>
+            <span class="meta-value">{{ formatDate(home.updatedAt) }}</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="isCreateModalOpen" (click)="closeCreateModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h2>Create home</h2>
+      <p class="modal-subtitle">
+        Add a home first, then you can create rooms inside it.
+      </p>
+
+      <div class="field">
+        <label for="homeName">Home name</label>
+        <input
+          id="homeName"
+          type="text"
+          [(ngModel)]="newHomeName"
+          placeholder="Enter home name"
+        />
+      </div>
+
+      <div class="field">
+        <label for="homeAddress">Address</label>
+        <input
+          id="homeAddress"
+          type="text"
+          [(ngModel)]="newHomeAddress"
+          placeholder="Enter address"
+        />
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" (click)="closeCreateModal()">
+          Cancel
+        </button>
+
+        <button type="button" class="primary-btn" [disabled]="isCreating" (click)="createHome()">
+          {{ isCreating ? 'Creating...' : 'Create home' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

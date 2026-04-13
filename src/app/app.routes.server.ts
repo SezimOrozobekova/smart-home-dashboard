@@ -2,6 +2,10 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
+    path: 'login',
+    renderMode: RenderMode.Client
+  },
+  {
     path: 'devices',
     renderMode: RenderMode.Client
   },
@@ -10,11 +14,12 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
-    path: 'room-editor',
+    path: 'room-editor/:roomId',
     renderMode: RenderMode.Client
   },
   {
     path: '**',
     renderMode: RenderMode.Prerender
-  }
+  },
+  { path: 'admin/**', renderMode: RenderMode.Client }
 ];

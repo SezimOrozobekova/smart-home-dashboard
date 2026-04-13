@@ -6,16 +6,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { switchMap } from 'rxjs/operators';
-
-type HomeResponse = {
-  id: string;
-  name: string;
-  address: string;
-  ownerId: string;
-  createdAt: string;
-  updatedAt: string;
-};
 
 type DeviceItem = {
   id: string;
@@ -53,8 +43,6 @@ export class Devices implements OnInit {
   loading = false;
   toggling = false;
   error = '';
-  selectedHomeName = '';
-  selectedHomeId = '';
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -67,22 +55,7 @@ export class Devices implements OnInit {
     this.error = '';
     this.cdr.detectChanges();
 
-    this.http.get<HomeResponse[]>(`${this.apiUrl}/homes`)
-      .pipe(
-        switchMap((homes) => {
-          if (!homes.length) {
-            throw new Error('No homes found');
-          }
-
-          const home = homes[0];
-          this.selectedHomeId = home.id;
-          this.selectedHomeName = home.name;
-
-          return this.http.get<RoomDevices[]>(
-            `${this.apiUrl}/homes/${home.id}/devices-by-room`
-          );
-        })
-      )
+    this.http.get<RoomDevices[]>(`${this.apiUrl}/homes/devices-by-room`)
       .subscribe({
         next: (rooms) => {
           this.rooms = rooms;
@@ -92,7 +65,7 @@ export class Devices implements OnInit {
         },
         error: (err) => {
           console.error('Failed to load devices:', err);
-          this.error = err?.message || 'Failed to load devices';
+          this.error = 'Failed to load devices';
           this.loading = false;
           this.cdr.detectChanges();
         }
@@ -122,14 +95,8 @@ export class Devices implements OnInit {
   }
 
   reloadDevicesByRoom(): void {
-    if (!this.selectedHomeId) {
-      this.toggling = false;
-      this.cdr.detectChanges();
-      return;
-    }
-
     this.http
-      .get<RoomDevices[]>(`${this.apiUrl}/homes/${this.selectedHomeId}/devices-by-room`)
+      .get<RoomDevices[]>(`${this.apiUrl}/homes/devices-by-room`)
       .subscribe({
         next: (rooms) => {
           this.rooms = rooms;
