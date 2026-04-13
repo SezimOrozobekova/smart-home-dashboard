@@ -1,0 +1,130 @@
+<div class="rooms-page">
+  <div class="rooms-shell">
+    <div class="rooms-hero">
+      <div class="rooms-hero-copy">
+        <div class="eyebrow">Smart home structure</div>
+        <h1 class="page-title">Rooms</h1>
+        <p class="page-subtitle">
+          View and manage the rooms connected to your smart home.
+        </p>
+      </div>
+
+      <button class="create-btn" type="button" (click)="openCreateModal()">
+        Add room
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="rooms-state">
+      Loading rooms...
+    </div>
+
+    <div *ngIf="errorMessage && !isLoading" class="rooms-state rooms-state-error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && rooms.length === 0" class="rooms-state">
+      No rooms found
+    </div>
+
+    <div class="rooms-grid" *ngIf="!isLoading && rooms.length > 0">
+      <article
+        class="room-card"
+        *ngFor="let room of rooms; trackBy: trackByRoom"
+      >
+        <div class="room-card-top">
+          <div class="room-kicker">Room</div>
+          <h2 class="room-name">{{ room.name }}</h2>
+        </div>
+
+        <div class="room-meta">
+          <div class="meta-item">
+            <span class="meta-label">Created</span>
+            <span class="meta-value">{{ formatDate(room.createdAt) }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Updated</span>
+            <span class="meta-value">{{ formatDate(room.updatedAt) }}</span>
+          </div>
+        </div>
+
+        <div class="room-actions">
+          <button class="card-secondary-btn" type="button" (click)="goToEditor(room)">
+            Open editor
+          </button>
+
+          <button class="card-danger-btn" type="button" (click)="openDeleteModal(room)">
+            Delete
+          </button>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="isCreateModalOpen" (click)="closeCreateModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h2>Create room</h2>
+      <p class="modal-subtitle">
+        Add a new room and continue to the editor.
+      </p>
+
+      <div *ngIf="!hasHomes" class="rooms-state rooms-state-error">
+        You need to create a home first before creating a room.
+      </div>
+
+      <div class="field">
+        <label for="roomName">Room name</label>
+        <input
+          id="roomName"
+          type="text"
+          [(ngModel)]="newRoomName"
+          placeholder="Enter room name"
+        />
+      </div>
+
+      <div class="field">
+        <label for="homeId">Select home</label>
+        <select id="homeId" [(ngModel)]="selectedHomeId">
+          <option value="" disabled>Select a home</option>
+          <option *ngFor="let home of homes" [value]="home.id">
+            {{ home.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" (click)="closeCreateModal()">
+          Cancel
+        </button>
+
+        <button type="button" class="primary-btn" [disabled]="!canCreateRoom" (click)="createRoom()">
+          {{ isCreating ? 'Creating...' : 'Next' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()">
+    <div class="modal-card modal-card-danger" (click)="$event.stopPropagation()">
+      <div class="danger-badge">Delete room</div>
+      <h2>Delete {{ roomToDelete?.name }}?</h2>
+      <p class="modal-subtitle">
+        This will permanently remove the room and all related devices, layouts, and device states.
+      </p>
+
+      <div class="delete-warning">
+        This action cannot be undone.
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" (click)="closeDeleteModal()">
+          Cancel
+        </button>
+
+        <button type="button" class="danger-btn" [disabled]="isDeleting" (click)="deleteRoom()">
+          {{ isDeleting ? 'Deleting...' : 'Delete room' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

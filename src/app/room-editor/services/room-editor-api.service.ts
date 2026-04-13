@@ -15,6 +15,12 @@ interface DeviceTypeResponse {
   updatedAt: string;
 }
 
+export interface SaveLayoutRequest {
+  roomWidth: number
+  roomDepth: number
+  items: any[]
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -36,5 +42,9 @@ export class RoomEditorApiService {
           }))
       )
     );
+  }
+
+  saveLayout(roomId: string, payload: SaveLayoutRequest) {
+    return this.http.put(`/api/rooms/${roomId}/layout`, payload)
   }
 }

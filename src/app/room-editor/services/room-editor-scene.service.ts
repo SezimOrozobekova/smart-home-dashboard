@@ -97,7 +97,7 @@ export class RoomEditorSceneService {
   }
 
   private createLights(): void {
-    const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambient = new THREE.AmbientLight(0xffffff, 1.5);
     this.scene.add(ambient);
 
     const directional = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -192,7 +192,8 @@ export class RoomEditorSceneService {
         const initialBox = new THREE.Box3().setFromObject(model);
         const minY = initialBox.min.y;
 
-        model.userData['modelId'] = modelItem.id;
+        model.userData['deviceTypeId'] = modelItem.id;
+        model.userData['deviceName'] = modelItem.name;
         model.userData['isPlacedObject'] = true;
 
         const freePosition = this.findFreePosition(model, minY);
@@ -360,4 +361,27 @@ export class RoomEditorSceneService {
 
     this.renderer?.dispose();
   }
+  getLayoutSnapshot() {
+    return {
+      roomWidth: this.roomWidth,
+      roomDepth: this.roomDepth,
+      items: this.placedObjects.map(obj => ({
+        deviceTypeId: obj.userData['deviceTypeId'],
+        name: obj.userData['deviceName'],
+
+        positionX: obj.position.x,
+        positionY: obj.position.y,
+        positionZ: obj.position.z,
+
+        rotationX: obj.rotation.x,
+        rotationY: obj.rotation.y,
+        rotationZ: obj.rotation.z,
+
+        scaleX: obj.scale.x,
+        scaleY: obj.scale.y,
+        scaleZ: obj.scale.z
+      }))
+    };
+  }
+
 }

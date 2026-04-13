@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
-
+import { ActivatedRoute, Router } from '@angular/router'
 import { RoomEditorSceneService } from './services/room-editor-scene.service';
 import { ROOM_EDITOR_MODELS, EditorModelItem } from './services/room-editor-models';
 import { RoomEditorApiService } from './services/room-editor-api.service';
@@ -32,15 +32,20 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
 
   roomWidth = 12;
   roomDepth = 12;
+  private roomId = ''
 
   constructor(
     private sceneService: RoomEditorSceneService,
     private roomEditorApiService: RoomEditorApiService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
-
   ngOnInit(): void {
-    this.loadModels();
+
+    this.roomId = this.route.snapshot.paramMap.get('roomId') ?? ''
+
+    this.loadModels()
   }
 
   ngAfterViewInit(): void {
@@ -96,5 +101,28 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sceneService.destroy();
+  }
+
+  saveLayout(): void {
+
+    const layout = this.sceneService.getLayoutSnapshot()
+
+    this.roomEditorApiService
+      .saveLayout(this.roomId, layout)
+      .subscribe({
+        next: () => {
+
+          console.log('Layout saved')
+
+          this.router.navigate(['/admin/rooms'])
+
+        },
+        error: (err) => {
+
+          console.error('Failed to save layout', err)
+
+        }
+      })
+
   }
 }

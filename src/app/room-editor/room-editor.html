@@ -6,6 +6,10 @@
         <button class="tool-btn" (click)="setMode('rotate')">Rotate</button>
         <button class="tool-btn" (click)="setMode('scale')">Scale</button>
         <button class="tool-btn danger" (click)="removeSelected()">Delete</button>
+
+        <button class="tool-btn save-btn" (click)="saveLayout()">
+          Save layout
+        </button>
       </div>
 
       <div class="room-settings">
@@ -50,4 +54,5 @@
   <main class="scene-area">
     <div #sceneHost class="scene-host"></div>
   </main>
+
 </div>
