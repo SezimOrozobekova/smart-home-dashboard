@@ -13,6 +13,10 @@
   box-sizing: border-box;
 }
 
+.devices-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
 .devices-hero {
   display: flex;
@@ -114,8 +118,13 @@
   color: #111827;
 }
 
+.actions-header {
+  text-align: right;
+}
+
 .actions {
   text-align: right;
+  white-space: nowrap;
 }
 
 .status-badge {
@@ -137,10 +146,9 @@
   color: #16a34a;
 }
 
+.bind-btn,
 .delete-btn {
   border: none;
-  background: rgba(220, 38, 38, 0.10);
-  color: #dc2626;
   padding: 8px 14px;
   border-radius: 10px;
   cursor: pointer;
@@ -151,10 +159,117 @@
     box-shadow 0.15s ease;
 }
 
+.bind-btn {
+  background: rgba(37, 99, 235, 0.10);
+  color: #2563eb;
+  margin-right: 8px;
+}
+
+.bind-btn:hover {
+  background: rgba(37, 99, 235, 0.18);
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background: rgba(220, 38, 38, 0.10);
+  color: #dc2626;
+}
+
 .delete-btn:hover {
   background: rgba(220, 38, 38, 0.18);
   transform: translateY(-1px);
 }
+
+/* BIND PANEL */
+
+.bind-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  z-index: 1000;
+}
+
+.bind-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 380px;
+  max-width: 100%;
+  height: 100%;
+  background: #ffffff;
+  box-shadow: -16px 0 40px rgba(15, 23, 42, 0.18);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.22s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.bind-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.bind-header h2 {
+  margin: 4px 0 0;
+  font-size: 26px;
+  color: #111827;
+}
+
+.bind-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2563eb;
+}
+
+.close-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 10px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.close-btn:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.bind-hint {
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bind-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+}
+
+/* DELETE MODAL */
 
 .modal-backdrop {
   position: fixed;
@@ -163,7 +278,7 @@
   display: grid;
   place-items: center;
   padding: 20px;
-  z-index: 1000;
+  z-index: 1100;
 }
 
 .modal-card {
@@ -187,6 +302,43 @@
   line-height: 1.6;
 }
 
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.field input,
+.field select {
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  background: #ffffff;
+  color: #111827;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.field input:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -195,6 +347,7 @@
 }
 
 .secondary-btn,
+.primary-btn,
 .danger-btn {
   min-width: 120px;
   height: 44px;
@@ -218,6 +371,18 @@
   background: #f8fafc;
 }
 
+.primary-btn {
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.24);
+}
+
 .danger-btn {
   border: none;
   background: linear-gradient(135deg, #dc2626, #b91c1c);
@@ -230,6 +395,7 @@
   box-shadow: 0 16px 28px rgba(220, 38, 38, 0.24);
 }
 
+.primary-btn:disabled,
 .danger-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
@@ -239,11 +405,6 @@
 @media (max-width: 768px) {
   .devices-page {
     padding: 16px;
-  }
-
-  .devices-shell {
-    padding: 20px;
-    border-radius: 20px;
   }
 
   .devices-hero {
@@ -260,7 +421,11 @@
   }
 
   .devices-table {
-    min-width: 900px;
+    min-width: 980px;
+  }
+
+  .bind-panel {
+    width: 100%;
   }
 
   .modal-card {

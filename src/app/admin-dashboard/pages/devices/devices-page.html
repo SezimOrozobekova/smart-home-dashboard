@@ -24,7 +24,6 @@
     </div>
 
     <div class="table-wrapper" *ngIf="devices.length > 0">
-
       <table class="devices-table">
         <thead>
         <tr>
@@ -35,14 +34,12 @@
           <th>Firmware</th>
           <th>Status</th>
           <th>Created</th>
-          <th></th>
+          <th class="actions-header">Actions</th>
         </tr>
         </thead>
 
         <tbody>
-
         <tr *ngFor="let device of devices; trackBy: trackByDevice">
-
           <td class="device-name">
             {{ device.name }}
           </td>
@@ -64,8 +61,7 @@
           </td>
 
           <td>
-            <span class="status-badge"
-                  [class.active]="device.isActive">
+            <span class="status-badge" [class.active]="device.isActive">
               {{ device.isActive ? 'Active' : 'Inactive' }}
             </span>
           </td>
@@ -76,32 +72,134 @@
 
           <td class="actions">
             <button
+              class="bind-btn"
+              type="button"
+              (click)="openBindPanel(device)">
+              Bind
+            </button>
+
+            <button
               class="delete-btn"
-              (click)="openDeleteModal(device)"
-            >
+              type="button"
+              (click)="openDeleteModal(device)">
               Delete
             </button>
           </td>
-
         </tr>
-
         </tbody>
       </table>
-
     </div>
 
   </div>
 </div>
 
+<!-- BIND SIDE PANEL -->
+
+<div
+  class="bind-panel-backdrop"
+  *ngIf="isBindPanelOpen"
+  (click)="closeBindPanel()"
+>
+  <aside
+    class="bind-panel"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="bind-header">
+      <div>
+        <div class="bind-kicker">Bind device</div>
+        <h2>{{ deviceToBind?.name }}</h2>
+      </div>
+
+      <button
+        type="button"
+        class="close-btn"
+        (click)="closeBindPanel()"
+        aria-label="Close bind panel"
+      >
+        ✕
+      </button>
+    </div>
+
+    <p class="modal-subtitle">
+      Connect this device to a real Shelly smart plug.
+    </p>
+
+    <div class="field">
+      <label for="provider">Provider</label>
+      <input
+        id="provider"
+        type="text"
+        [ngModel]="bindForm.provider"
+        disabled
+      />
+    </div>
+
+    <div class="field">
+      <label for="connectionType">Connection type</label>
+      <input
+        id="connectionType"
+        type="text"
+        [ngModel]="bindForm.connectionType"
+        disabled
+      />
+    </div>
+
+    <div class="field">
+      <label for="ipAddress">IP address</label>
+      <input
+        id="ipAddress"
+        type="text"
+        [(ngModel)]="bindForm.ipAddress"
+        placeholder="172.20.10.8"
+      />
+    </div>
+
+    <div class="field">
+      <label for="port">Port</label>
+      <input
+        id="port"
+        type="number"
+        [(ngModel)]="bindForm.port"
+        placeholder="80"
+      />
+    </div>
+
+    <div class="bind-hint">
+      Use the local IP address of your Shelly plug. Example: 172.20.10.8
+    </div>
+
+    <div class="bind-actions">
+      <button
+        type="button"
+        class="secondary-btn"
+        (click)="closeBindPanel()"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="primary-btn"
+        [disabled]="isBinding"
+        (click)="bindDevice()"
+      >
+        {{ isBinding ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </aside>
+</div>
+
 <!-- DELETE MODAL -->
 
-<div class="modal-backdrop"
-     *ngIf="isDeleteModalOpen"
-     (click)="closeDeleteModal()">
-
-  <div class="modal-card"
-       (click)="$event.stopPropagation()">
-
+<div
+  class="modal-backdrop"
+  *ngIf="isDeleteModalOpen"
+  (click)="closeDeleteModal()"
+>
+  <div
+    class="modal-card"
+    (click)="$event.stopPropagation()"
+  >
     <h2>Delete {{ deviceToDelete?.name }}?</h2>
 
     <p class="modal-subtitle">
@@ -109,24 +207,22 @@
     </p>
 
     <div class="modal-actions">
-
       <button
+        type="button"
         class="secondary-btn"
-        (click)="closeDeleteModal()">
+        (click)="closeDeleteModal()"
+      >
         Cancel
       </button>
 
       <button
+        type="button"
         class="danger-btn"
         [disabled]="isDeleting"
-        (click)="deleteDevice()">
-
+        (click)="deleteDevice()"
+      >
         {{ isDeleting ? 'Deleting...' : 'Delete' }}
-
       </button>
-
     </div>
-
   </div>
-
 </div>
