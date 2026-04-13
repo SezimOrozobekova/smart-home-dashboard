@@ -1,0 +1,70 @@
+<div class="register-page">
+  <div class="register-card">
+    <h1>Create account</h1>
+    <p class="register-subtitle">
+      Create your smart home account to manage devices, rooms, and energy usage.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter your name"
+        />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <small class="error">Name must be at least 2 characters</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small class="error">Enter a valid email</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="Create a password"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small class="error">Password must be at least 6 characters</small>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <div class="server-error">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      @if (successMessage()) {
+        <div class="server-success">
+          {{ successMessage() }}
+        </div>
+      }
+
+      <button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Creating account...' : 'Register' }}
+      </button>
+
+      <p class="auth-link">
+        Already have an account?
+        <a routerLink="/login">Sign in</a>
+      </p>
+    </form>
+  </div>
+</div>

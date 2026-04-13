@@ -1,0 +1,152 @@
+.register-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 40px;
+  background:
+    radial-gradient(circle at top left, rgba(76, 175, 80, 0.12), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(33, 150, 243, 0.12), transparent 35%),
+    linear-gradient(180deg, #f7fafc 0%, #eef3f8 100%);
+}
+
+.register-card {
+  width: 100%;
+  max-width: 720px;
+  padding: 56px 60px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 30px 80px rgba(15, 23, 42, 0.15),
+    0 10px 30px rgba(15, 23, 42, 0.10);
+  backdrop-filter: blur(10px);
+}
+
+h1 {
+  margin: 0 0 14px;
+  font-size: 42px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.register-subtitle {
+  margin: 0 0 36px;
+  font-size: 17px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 26px;
+}
+
+label {
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+}
+
+input {
+  height: 58px;
+  padding: 0 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 16px;
+  font-size: 16px;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+button {
+  width: 100%;
+  height: 60px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.25);
+  transition: all 0.18s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.28);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.error {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #dc2626;
+}
+
+.server-error {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.16);
+  color: #b91c1c;
+}
+
+.server-success {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.16);
+  color: #15803d;
+}
+
+.auth-link {
+  margin-top: 18px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.auth-link a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .register-page {
+    padding: 16px;
+  }
+
+  .register-card {
+    max-width: 100%;
+    padding: 32px 22px;
+    border-radius: 22px;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  input,
+  button {
+    height: 52px;
+  }
+}

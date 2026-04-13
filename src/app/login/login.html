@@ -1,0 +1,50 @@
+<div class="login-page">
+  <div class="login-card">
+    <h1>Welcome back</h1>
+    <p class="login-subtitle">
+      Sign in to manage your smart home, monitor devices, and control energy usage.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small class="error">Enter a valid email</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="Enter your password"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small class="error">Enter your password</small>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <div class="server-error">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Signing in...' : 'Sign in' }}
+      </button>
+    </form>
+    <p class="auth-link">
+      Don’t have an account?
+      <a routerLink="/register">Create one</a>
+    </p>
+  </div>
+</div>
