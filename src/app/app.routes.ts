@@ -62,6 +62,11 @@ export const routes: Routes = [
         path: 'homes',
         loadComponent: () =>
           import('./admin-dashboard/pages/homes/homes-page').then(m => m.HomesPage)
+      },
+      {
+        path: 'statistics',
+        loadComponent: () =>
+          import('./admin-dashboard/pages/statistics/statistics-page').then(m => m.StatisticsPage)
       }
       // {
       //   path: 'users',

@@ -1,0 +1,39 @@
+<div class="statistics-page">
+  <div class="statistics-shell">
+    <div class="statistics-hero">
+      <div class="statistics-hero-copy">
+        <div class="eyebrow">Analytics</div>
+        <h1 class="page-title">Energy Statistics</h1>
+        <p class="page-subtitle">
+          Мониторинг потребления энергии и стоимости
+        </p>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>This Month</h3>
+
+        <ng-container *ngIf="monthlyLoading">
+          <p>Loading monthly data...</p>
+        </ng-container>
+
+        <ng-container *ngIf="!monthlyLoading && monthly">
+          <p><b>{{ monthly.consumedKwh }}</b> kWh</p>
+          <p>{{ monthly.consumedWh }} Wh</p>
+          <p class="cost">💰 {{ getCost() | number:'1.2-2' }} сом</p>
+        </ng-container>
+
+        <ng-container *ngIf="!monthlyLoading && !monthly">
+          <p>No monthly data</p>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-box">
+        <canvas #chartCanvas></canvas>
+      </div>
+    </div>
+  </div>
+</div>
