@@ -41,7 +41,8 @@ export const routes: Routes = [
     path: 'admin',
     loadComponent: () =>
       import('./admin-dashboard/admin-dashboard').then(m => m.AdminDashboard),
-    canActivate: [adminGuard],
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       {
         path: '',
@@ -68,11 +69,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./admin-dashboard/pages/statistics/statistics-page').then(m => m.StatisticsPage)
       }
-      // {
-      //   path: 'users',
-      //   loadComponent: () =>
-      //     import('./admin-dashboard/pages/users/users-page').then(m => m.UsersPage)
-      // }
     ]
   },
   {
