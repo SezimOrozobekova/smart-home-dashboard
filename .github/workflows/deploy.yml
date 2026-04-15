@@ -1,0 +1,34 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build frontend image
+        run: docker build -t shevchenko04/smarthome-frontend:latest .
+
+      - name: Push frontend image
+        run: docker push shevchenko04/smarthome-frontend:latest
+
+      - name: Deploy frontend on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/smarthome
+            docker-compose pull frontend
+            docker-compose up -d frontend
