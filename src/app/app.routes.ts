@@ -35,7 +35,7 @@ export const routes: Routes = [
   {
     path: 'room-editor/:roomId',
     loadComponent: () => import('./room-editor/room-editor').then(m => m.RoomEditor),
-    canActivate: [adminGuard]
+    canActivate: [authGuard],
   },
   {
     path: 'admin',
