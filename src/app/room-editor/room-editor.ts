@@ -125,4 +125,14 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
       })
 
   }
+
+  isSidebarOpen = false;
+
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }
