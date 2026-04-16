@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 .app-toolbar {
   position: sticky;
   top: 0;
@@ -6,12 +10,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
-
-    background: linear-gradient(90deg, #00040f 0%, #000c26 50%, #001233 100%);
-
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  gap: 16px;
+  padding: 0 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(90deg, #00040f 0%, #000c26 50%, #001233 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .app-toolbar.mat-toolbar {
@@ -19,11 +25,17 @@
   font-family: inherit;
 }
 
+.app-toolbar > * {
+  min-width: 0;
+}
+
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 220px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .brand-mark {
@@ -31,13 +43,16 @@
   height: 12px;
   border-radius: 3px;
   background: #60a5fa;
-  box-shadow: 0 0 12px rgba(96,165,250,0.6);
+  box-shadow: 0 0 12px rgba(96, 165, 250, 0.6);
+  flex: 0 0 auto;
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
   line-height: 1.1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .logo {
@@ -45,20 +60,28 @@
   font-weight: 600;
   color: #f8fafc;
   letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .brand-sub {
   font-size: 11px;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 auto;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 2 1 auto;
 }
 
 .nav a.mat-mdc-button,
@@ -68,10 +91,11 @@
   font-weight: 600;
   text-transform: none;
   min-width: auto;
-  padding: 0 14px;
+  padding: 0 12px;
   height: 40px;
   border-radius: 10px;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .nav a:hover {
@@ -84,15 +108,25 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .header-info {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-width: 180px;
   justify-content: flex-end;
+  gap: 12px;
+  min-width: 0;
   color: rgba(255, 255, 255, 0.82);
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .weather {
@@ -116,44 +150,115 @@
   color: #ffffff;
   font-weight: 600;
   letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.burger-btn {
+  display: none;
+  color: #ffffff !important;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.burger-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 900px) {
+  .app-toolbar {
+    padding: 0 16px;
+    gap: 10px;
+  }
+
   .logo {
-    font-size: 22px;
+    font-size: 18px;
   }
 
-  .nav {
-    gap: 2px;
+  .brand-sub {
+    font-size: 10px;
   }
 
-  .nav a.mat-mdc-button {
-    padding: 0 10px;
-    font-size: 14px;
+  .nav a.mat-mdc-button,
+  .nav a.mat-mdc-button:visited {
+    padding: 0 8px;
+    font-size: 13px;
+    height: 36px;
   }
 
   .header-info {
+    gap: 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .burger-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-toolbar {
+    height: 68px;
+    padding: 0 12px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand-mark {
+    width: 10px;
+    height: 10px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .header-actions {
+    flex: 0 0 auto;
+  }
+
+  .header-info {
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .weather {
+    display: none;
+  }
+
+  .divider {
     display: none;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 420px) {
   .app-toolbar {
-    padding: 0 16px;
+    padding: 0 10px;
+    gap: 8px;
   }
 
   .logo {
-    font-size: 18px;
+    font-size: 14px;
   }
 
-  .brand-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
+  .time {
+    font-size: 11px;
   }
 
-  .nav a.mat-mdc-button {
-    padding: 0 8px;
-    font-size: 13px;
+  .burger-btn {
+    width: 40px;
+    height: 40px;
   }
 }

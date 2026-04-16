@@ -1,5 +1,4 @@
 <mat-toolbar class="app-toolbar">
-
   <div class="brand">
     <div class="brand-mark"></div>
 
@@ -8,8 +7,8 @@
       <span class="brand-sub">Energy Platform</span>
     </div>
   </div>
-  <nav class="nav">
 
+  <nav class="nav desktop-nav">
     <a
       mat-button
       routerLink="/"
@@ -45,16 +44,69 @@
       routerLinkActive="active">
       Insights
     </a>
-
   </nav>
 
-  <div class="header-info">
-    <div class="weather">
-      <span class="weather-icon">☁</span>
-      <span>18°C Cloudy</span>
-    </div>
-    <div class="divider"></div>
-    <div class="time">19:45</div>
-  </div>
+  <div class="header-actions">
+    <div class="header-info">
+      <div class="weather">
+        <span class="weather-icon">☁</span>
+        <span>18°C Cloudy</span>
+      </div>
 
+      <div class="divider"></div>
+
+      <div class="time">19:45</div>
+    </div>
+
+    <button
+      mat-icon-button
+      class="burger-btn"
+      [matMenuTriggerFor]="mobileMenu"
+      aria-label="Open navigation menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+  </div>
 </mat-toolbar>
+
+<mat-menu #mobileMenu="matMenu" panelClass="mobile-menu-panel">
+  <button
+    mat-menu-item
+    routerLink="/"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon>dashboard</mat-icon>
+    <span>Dashboard</span>
+  </button>
+
+  <button
+    mat-menu-item
+    routerLink="/devices"
+    routerLinkActive="active">
+    <mat-icon>devices</mat-icon>
+    <span>Devices</span>
+  </button>
+
+  <button
+    mat-menu-item
+    routerLink="/home3d"
+    routerLinkActive="active">
+    <mat-icon>home</mat-icon>
+    <span>3D Home</span>
+  </button>
+
+  <button
+    mat-menu-item
+    routerLink="/admin"
+    routerLinkActive="active">
+    <mat-icon>settings</mat-icon>
+    <span>Manage</span>
+  </button>
+
+  <button
+    mat-menu-item
+    routerLink="/insights"
+    routerLinkActive="active">
+    <mat-icon>insights</mat-icon>
+    <span>Insights</span>
+  </button>
+</mat-menu>
