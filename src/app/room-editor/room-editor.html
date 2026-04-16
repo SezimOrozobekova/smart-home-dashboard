@@ -2,6 +2,8 @@
 
   <button
     class="editor-menu-btn"
+    type="button"
+    *ngIf="!isSidebarOpen"
     (click)="toggleSidebar()"
     aria-label="Open editor menu">
     ☰
@@ -18,59 +20,57 @@
     [class.mobile-open]="isSidebarOpen">
 
     <div class="sidebar-top">
+      <button
+        class="close-sidebar-btn"
+        type="button"
+        (click)="closeSidebar()"
+        aria-label="Close editor menu">
+        ✕
+      </button>
+
       <div class="toolbar">
-        <button class="tool-btn" (click)="setMode('translate')">
+        <button class="tool-btn" type="button" (click)="setMode('translate')">
           Move
         </button>
 
-        <button class="tool-btn" (click)="setMode('rotate')">
+        <button class="tool-btn" type="button" (click)="setMode('rotate')">
           Rotate
         </button>
 
-        <button class="tool-btn" (click)="setMode('scale')">
+        <button class="tool-btn" type="button" (click)="setMode('scale')">
           Scale
         </button>
 
-        <button class="tool-btn danger" (click)="removeSelected()">
+        <button class="tool-btn danger" type="button" (click)="removeSelected()">
           Delete
         </button>
 
-        <button class="tool-btn save-btn" (click)="saveLayout()">
+        <button class="tool-btn save-btn" type="button" (click)="saveLayout()">
           Save layout
         </button>
       </div>
 
-      <!-- ROOM SETTINGS -->
       <div class="room-settings">
         <div class="room-settings-title">Room size</div>
 
         <div class="room-inputs">
           <label class="room-field">
             <span>Width</span>
-            <input
-              type="number"
-              min="4"
-              max="30"
-              [(ngModel)]="roomWidth" />
+            <input type="number" min="4" max="30" [(ngModel)]="roomWidth" />
           </label>
 
           <label class="room-field">
             <span>Depth</span>
-            <input
-              type="number"
-              min="4"
-              max="30"
-              [(ngModel)]="roomDepth" />
+            <input type="number" min="4" max="30" [(ngModel)]="roomDepth" />
           </label>
         </div>
 
-        <button class="tool-btn apply-btn" (click)="applyRoomSize()">
+        <button class="tool-btn apply-btn" type="button" (click)="applyRoomSize()">
           Apply
         </button>
       </div>
     </div>
 
-    <!-- MODELS -->
     <div class="models-section">
       <div class="models-header">Device types</div>
 
@@ -85,16 +85,15 @@
       <div class="model-list" *ngIf="!isLoading && !errorMessage">
         <button
           class="model-btn"
+          type="button"
           *ngFor="let model of models"
           (click)="addModel(model)">
           {{ model.name }}
         </button>
       </div>
     </div>
-
   </aside>
 
-  <!-- SCENE -->
   <main class="scene-area">
     <div #sceneHost class="scene-host"></div>
   </main>
