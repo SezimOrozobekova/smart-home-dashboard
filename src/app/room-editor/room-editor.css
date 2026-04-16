@@ -36,6 +36,7 @@
 
 .sidebar {
   width: 280px;
+  padding-top: 78px;
   background: #0f172a;
   border-right: 1px solid #1e293b;
   box-sizing: border-box;
@@ -287,6 +288,7 @@
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     box-shadow: 12px 0 30px rgba(0, 0, 0, 0.35);
+    padding-top: 0;
   }
 
   .sidebar.mobile-open {
@@ -342,5 +344,23 @@
   .tool-btn,
   .model-btn {
     font-size: 12px;
+  }
+}
+
+
+@media (max-height: 750px) {
+  .sidebar {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .models-section {
+    flex: 0 0 auto;
+  }
+
+  .model-list {
+    flex: 0 0 auto;
+    overflow: visible;
   }
 }

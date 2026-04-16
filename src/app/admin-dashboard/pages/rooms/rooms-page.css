@@ -11,7 +11,6 @@
 
 .rooms-page {
   padding: 32px;
-  box-sizing: border-box;
 }
 
 .rooms-shell {
@@ -34,28 +33,28 @@
 }
 
 .eyebrow {
+  margin-bottom: 10px;
+  color: #2563eb;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #2563eb;
-  margin-bottom: 10px;
 }
 
 .page-title {
   margin: 0 0 10px;
+  color: #111827;
   font-size: 38px;
   font-weight: 700;
-  color: #111827;
   line-height: 1.1;
 }
 
 .page-subtitle {
   margin: 0;
   max-width: 640px;
+  color: #6b7280;
   font-size: 16px;
   line-height: 1.6;
-  color: #6b7280;
 }
 
 .create-btn {
@@ -64,12 +63,12 @@
   border: none;
   border-radius: 14px;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
   color: white;
+  cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
@@ -85,13 +84,13 @@
   padding: 24px;
   border-radius: 18px;
   background: white;
-  color: #4b5563;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  color: #4b5563;
 }
 
 .rooms-state-error {
-  color: #b91c1c;
   background: rgba(220, 38, 38, 0.06);
+  color: #b91c1c;
 }
 
 .rooms-grid {
@@ -101,23 +100,23 @@
 }
 
 .room-card {
+  min-width: 0;
   padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.75);
   box-shadow:
     0 18px 40px rgba(15, 23, 42, 0.08),
     0 8px 20px rgba(15, 23, 42, 0.04);
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease;
-  min-width: 0;
 }
 
 .room-card:hover {
   transform: translateY(-2px);
   box-shadow:
-    0 22px 48px rgba(15, 23, 42, 0.10),
+    0 22px 48px rgba(15, 23, 42, 0.1),
     0 10px 24px rgba(15, 23, 42, 0.05);
 }
 
@@ -128,27 +127,27 @@
 }
 
 .room-kicker {
+  margin-bottom: 10px;
+  color: #3b82f6;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #3b82f6;
-  margin-bottom: 10px;
 }
 
 .room-name {
   margin: 0;
+  color: #111827;
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
   line-height: 1.2;
   word-break: break-word;
 }
 
 .room-meta {
-  margin-top: 20px;
   display: grid;
   gap: 12px;
+  margin-top: 20px;
 }
 
 .meta-item {
@@ -159,26 +158,76 @@
 }
 
 .meta-label {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: #9ca3af;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .meta-value {
-  font-size: 14px;
   color: #374151;
+  font-size: 14px;
   word-break: break-word;
+}
+
+.room-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.card-secondary-btn,
+.card-danger-btn,
+.secondary-btn,
+.primary-btn,
+.danger-btn {
+  min-width: 0;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    background 0.18s ease;
+}
+
+.card-secondary-btn {
+  flex: 1 0 0;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+}
+
+.card-secondary-btn:hover {
+  transform: translateY(-1px);
+  background: #f8fafc;
+}
+
+.card-danger-btn {
+  flex-shrink: 0;
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+}
+
+.card-danger-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(220, 38, 38, 0.14);
 }
 
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  z-index: 1000;
   display: grid;
   place-items: center;
   padding: 20px;
-  z-index: 1000;
+  background: rgba(15, 23, 42, 0.45);
 }
 
 .modal-card {
@@ -194,8 +243,8 @@
 
 .modal-card h2 {
   margin: 0 0 8px;
-  font-size: 28px;
   color: #111827;
+  font-size: 28px;
   line-height: 1.2;
 }
 
@@ -211,10 +260,14 @@
   gap: 8px;
 }
 
+.field + .field {
+  margin-top: 16px;
+}
+
 .field label {
+  color: #374151;
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
 }
 
 .field input,
@@ -224,9 +277,9 @@
   padding: 0 16px;
   border: 1px solid #d1d5db;
   border-radius: 14px;
-  font-size: 15px;
   outline: none;
   background: white;
+  font-size: 15px;
 }
 
 .field input:focus,
@@ -242,20 +295,6 @@
   margin-top: 24px;
 }
 
-.secondary-btn,
-.primary-btn {
-  min-width: 120px;
-  height: 46px;
-  padding: 0 16px;
-  border-radius: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    opacity 0.18s ease;
-}
-
 .secondary-btn {
   border: 1px solid #d1d5db;
   background: white;
@@ -269,8 +308,8 @@
 .primary-btn {
   border: none;
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
   box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+  color: white;
 }
 
 .primary-btn:hover:not(:disabled) {
@@ -278,55 +317,11 @@
   box-shadow: 0 16px 28px rgba(37, 99, 235, 0.24);
 }
 
-.primary-btn:disabled {
+.primary-btn:disabled,
+.danger-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   box-shadow: none;
-}
-
-.room-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 22px;
-}
-
-.card-secondary-btn,
-.card-danger-btn,
-.danger-btn {
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    opacity 0.18s ease,
-    background 0.18s ease;
-}
-
-.card-secondary-btn {
-  flex: 1;
-  border: 1px solid #d1d5db;
-  background: white;
-  color: #374151;
-}
-
-.card-secondary-btn:hover {
-  background: #f8fafc;
-  transform: translateY(-1px);
-}
-
-.card-danger-btn {
-  border: 1px solid rgba(220, 38, 38, 0.18);
-  background: rgba(220, 38, 38, 0.08);
-  color: #b91c1c;
-}
-
-.card-danger-btn:hover {
-  background: rgba(220, 38, 38, 0.14);
-  transform: translateY(-1px);
 }
 
 .modal-card-danger {
@@ -340,7 +335,7 @@
   padding: 0 12px;
   margin-bottom: 14px;
   border-radius: 999px;
-  background: rgba(220, 38, 38, 0.10);
+  background: rgba(220, 38, 38, 0.1);
   color: #b91c1c;
   font-size: 12px;
   font-weight: 700;
@@ -362,19 +357,13 @@
   min-width: 140px;
   border: none;
   background: linear-gradient(135deg, #dc2626, #b91c1c);
-  color: white;
   box-shadow: 0 12px 24px rgba(220, 38, 38, 0.18);
+  color: white;
 }
 
 .danger-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 16px 28px rgba(220, 38, 38, 0.24);
-}
-
-.danger-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  box-shadow: none;
 }
 
 @media (max-width: 992px) {
@@ -402,7 +391,12 @@
     gap: 16px;
   }
 
-  .create-btn {
+  .create-btn,
+  .card-secondary-btn,
+  .card-danger-btn,
+  .secondary-btn,
+  .primary-btn,
+  .danger-btn {
     width: 100%;
   }
 
@@ -428,13 +422,9 @@
     font-size: 22px;
   }
 
-  .room-actions {
+  .room-actions,
+  .modal-actions {
     flex-direction: column;
-  }
-
-  .card-secondary-btn,
-  .card-danger-btn {
-    width: 100%;
   }
 
   .modal-backdrop {
@@ -457,13 +447,13 @@
   }
 
   .eyebrow {
-    font-size: 11px;
     margin-bottom: 8px;
+    font-size: 11px;
   }
 
   .page-title {
-    font-size: 26px;
     margin-bottom: 8px;
+    font-size: 26px;
   }
 
   .page-subtitle {
@@ -471,10 +461,14 @@
     line-height: 1.5;
   }
 
-  .create-btn {
+  .create-btn,
+  .card-secondary-btn,
+  .card-danger-btn,
+  .secondary-btn,
+  .primary-btn,
+  .danger-btn {
     height: 44px;
     border-radius: 12px;
-    font-size: 14px;
   }
 
   .rooms-state {
@@ -488,8 +482,8 @@
   }
 
   .room-kicker {
-    font-size: 11px;
     margin-bottom: 8px;
+    font-size: 11px;
   }
 
   .room-name {
@@ -497,8 +491,8 @@
   }
 
   .room-meta {
-    margin-top: 16px;
     gap: 10px;
+    margin-top: 16px;
   }
 
   .meta-label {
@@ -510,19 +504,8 @@
   }
 
   .room-actions {
-    margin-top: 18px;
     gap: 10px;
-  }
-
-  .card-secondary-btn,
-  .card-danger-btn,
-  .danger-btn,
-  .secondary-btn,
-  .primary-btn {
-    width: 100%;
-    min-width: 0;
-    height: 44px;
-    border-radius: 12px;
+    margin-top: 18px;
   }
 
   .modal-backdrop {
@@ -530,9 +513,9 @@
   }
 
   .modal-card {
+    max-height: calc(100dvh - 24px);
     padding: 18px;
     border-radius: 16px;
-    max-height: calc(100dvh - 24px);
   }
 
   .modal-card h2 {
@@ -540,47 +523,20 @@
   }
 
   .modal-subtitle {
-    font-size: 14px;
     margin-bottom: 18px;
+    font-size: 14px;
   }
 
   .field input,
   .field select {
     height: 46px;
     padding: 0 14px;
-    font-size: 14px;
     border-radius: 12px;
-  }
-
-  .modal-actions {
-    flex-direction: column;
-    gap: 10px;
+    font-size: 14px;
   }
 
   .delete-warning {
-    font-size: 13px;
     padding: 12px 14px;
-  }
-}
-
-@media (max-width: 360px) {
-  .rooms-page {
-    padding: 10px;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-
-  .room-card {
-    padding: 14px;
-  }
-
-  .room-name {
-    font-size: 18px;
-  }
-
-  .modal-card {
-    padding: 16px;
+    font-size: 13px;
   }
 }
