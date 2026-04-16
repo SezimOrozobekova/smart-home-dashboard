@@ -1,18 +1,29 @@
 :host {
   display: block;
-  height: 100%;
 }
 
 .sidebar {
   position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1300;
+
   width: 260px;
-  height: 100%;
+
   background: #0f172a;
   border-right: 1px solid #1e293b;
   padding: 24px 20px;
   box-sizing: border-box;
   color: #e2e8f0;
   font-family: Inter, system-ui, -apple-system, sans-serif;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-top {
+  margin-bottom: 24px;
 }
 
 .user-block {
@@ -21,7 +32,6 @@
   gap: 14px;
   padding-bottom: 24px;
   border-bottom: 1px solid #1e293b;
-  margin-bottom: 24px;
 }
 
 .avatar {
@@ -35,6 +45,7 @@
   justify-content: center;
   font-weight: 700;
   font-size: 18px;
+  flex: 0 0 auto;
 }
 
 .user-name {
@@ -74,4 +85,16 @@
 .nav-link.active {
   background: #1e293b;
   color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    max-width: 80vw;
+  }
+
+  :host(.mobile-open) .sidebar {
+    transform: translateX(0);
+  }
 }

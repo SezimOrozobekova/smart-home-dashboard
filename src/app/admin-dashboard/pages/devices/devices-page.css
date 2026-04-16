@@ -6,10 +6,6 @@
 .devices-page {
   min-height: 100vh;
   padding: 32px;
-  background:
-    radial-gradient(circle at top left, rgba(76, 175, 80, 0.08), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(33, 150, 243, 0.08), transparent 30%),
-    linear-gradient(180deg, #f7fafc 0%, #eef3f8 100%);
   box-sizing: border-box;
 }
 
@@ -431,5 +427,76 @@
   .modal-card {
     padding: 22px;
     border-radius: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .devices-page {
+    padding: 16px;
+  }
+
+  .devices-hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-title {
+    font-size: 30px;
+  }
+
+  /* Убираем горизонтальный скролл */
+  .table-wrapper {
+    overflow-x: visible;
+  }
+
+  .devices-table {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Скрываем лишние колонки */
+
+  /* Type */
+  .devices-table th:nth-child(2),
+  .devices-table td:nth-child(2),
+
+    /* Model */
+  .devices-table th:nth-child(4),
+  .devices-table td:nth-child(4),
+
+    /* Firmware */
+  .devices-table th:nth-child(5),
+  .devices-table td:nth-child(5),
+
+    /* Status */
+  .devices-table th:nth-child(6),
+  .devices-table td:nth-child(6),
+
+    /* Created */
+  .devices-table th:nth-child(7),
+  .devices-table td:nth-child(7) {
+    display: none;
+  }
+
+  /* Поджимаем отступы */
+  .devices-table td {
+    padding: 14px 12px;
+    font-size: 14px;
+  }
+
+  .devices-table th {
+    padding: 12px;
+    font-size: 11px;
+  }
+
+  /* Actions красиво */
+  .actions {
+    text-align: right;
+  }
+
+  .bind-btn,
+  .delete-btn {
+    padding: 6px 10px;
+    font-size: 13px;
   }
 }

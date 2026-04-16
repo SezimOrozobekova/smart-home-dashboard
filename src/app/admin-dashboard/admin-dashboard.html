@@ -1,5 +1,22 @@
 <div class="admin-layout">
-  <app-admin-sidebar></app-admin-sidebar>
+  <button
+    class="sidebar-toggle"
+    type="button"
+    (click)="toggleSidebar()"
+    aria-label="Open admin sidebar">
+    ☰
+  </button>
+
+  <div
+    class="sidebar-backdrop"
+    *ngIf="isSidebarOpen"
+    (click)="closeSidebar()">
+  </div>
+
+  <app-admin-sidebar
+    class="admin-sidebar"
+    [class.mobile-open]="isSidebarOpen">
+  </app-admin-sidebar>
 
   <main class="admin-content">
     <router-outlet></router-outlet>
