@@ -29,6 +29,20 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -e
             cd ~/smarthome
+
+            echo "🛑 Stop frontend"
+            docker compose stop frontend || true
+
+            echo "🗑 Remove frontend container"
+            docker compose rm -f frontend || true
+
+            echo "🧹 Remove old frontend image"
+            docker image rm shevchenko04/smarthome-frontend:latest || true
+
+            echo "⬇️ Pull new image"
             docker compose pull frontend
+
+            echo "🚀 Start frontend"
             docker compose up -d frontend
