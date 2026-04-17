@@ -18,12 +18,27 @@ interface DeviceItem {
   updatedAt: string;
 }
 
-interface BindDeviceConnectionRequest {
+interface BindInitRequest {
   provider: 'SHELLY';
-  connectionType: 'LOCAL_HTTP';
-  ipAddress: string;
-  port: number;
-  isEnabled: boolean;
+  connectionType: 'MQTT';
+}
+
+interface BindInitResponse {
+  deviceId: string;
+  provider: 'SHELLY';
+  connectionType: 'MQTT';
+  brokerHost: string;
+  brokerPort: number;
+  username: string;
+  password: string;
+  topicPrefix: string;
+  clientIdMode: string;
+}
+
+interface BindConfirmRequest {
+  provider: 'SHELLY';
+  connectionType: 'MQTT';
+  externalDeviceId: string;
 }
 
 @Component({
@@ -51,7 +66,8 @@ export class DevicesPage implements OnInit {
   isBindPanelOpen = false;
   deviceToBind: DeviceItem | null = null;
 
-  bindForm: BindDeviceConnectionRequest = this.createDefaultBindForm();
+  bindInitData: BindInitResponse | null = null;
+  externalDeviceId = '';
 
   ngOnInit(): void {
     this.loadDevices();
@@ -84,33 +100,60 @@ export class DevicesPage implements OnInit {
   }
 
   openBindPanel(device: DeviceItem): void {
-    if (this.isBinding) {
-      return;
-    }
+    if (this.isBinding) return;
 
     this.deviceToBind = device;
-    this.bindForm = this.createDefaultBindForm();
+    this.bindInitData = null;
+    this.externalDeviceId = '';
     this.errorMessage = '';
     this.isBindPanelOpen = true;
   }
 
   closeBindPanel(): void {
-    if (this.isBinding) {
-      return;
-    }
+    if (this.isBinding) return;
 
     this.isBindPanelOpen = false;
     this.deviceToBind = null;
-    this.bindForm = this.createDefaultBindForm();
+    this.bindInitData = null;
+    this.externalDeviceId = '';
   }
 
-  bindDevice(): void {
-    if (!this.deviceToBind || this.isBinding) {
-      return;
-    }
+  startBind(): void {
+    if (!this.deviceToBind || this.isBinding) return;
 
-    if (!this.bindForm.ipAddress.trim()) {
-      this.errorMessage = 'IP address is required';
+    this.isBinding = true;
+    this.errorMessage = '';
+
+    const payload: BindInitRequest = {
+      provider: 'SHELLY',
+      connectionType: 'MQTT'
+    };
+
+    this.http.post<BindInitResponse>(`/api/devices/${this.deviceToBind.id}/binding/init`, payload).subscribe({
+      next: (response) => {
+        this.ngZone.run(() => {
+          this.bindInitData = response;
+          this.isBinding = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Failed to init bind', error);
+
+        this.ngZone.run(() => {
+          this.isBinding = false;
+          this.errorMessage = 'Failed to initialize bind';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  confirmBind(): void {
+    if (!this.deviceToBind || !this.bindInitData || this.isBinding) return;
+
+    if (!this.externalDeviceId.trim()) {
+      this.errorMessage = 'External device ID is required';
       this.cdr.detectChanges();
       return;
     }
@@ -118,15 +161,13 @@ export class DevicesPage implements OnInit {
     this.isBinding = true;
     this.errorMessage = '';
 
-    const payload: BindDeviceConnectionRequest = {
+    const payload: BindConfirmRequest = {
       provider: 'SHELLY',
-      connectionType: 'LOCAL_HTTP',
-      ipAddress: this.bindForm.ipAddress.trim(),
-      port: this.bindForm.port || 80,
-      isEnabled: true
+      connectionType: 'MQTT',
+      externalDeviceId: this.externalDeviceId.trim()
     };
 
-    this.http.put(`/api/device-connections/device/${this.deviceToBind.id}`, payload).subscribe({
+    this.http.post(`/api/devices/${this.deviceToBind.id}/binding/confirm`, payload).subscribe({
       next: () => {
         this.ngZone.run(() => {
           this.isBinding = false;
@@ -135,11 +176,11 @@ export class DevicesPage implements OnInit {
         });
       },
       error: (error) => {
-        console.error('Failed to bind device', error);
+        console.error('Failed to confirm bind', error);
 
         this.ngZone.run(() => {
           this.isBinding = false;
-          this.errorMessage = 'Failed to bind device';
+          this.errorMessage = 'Failed to confirm bind';
           this.cdr.detectChanges();
         });
       }
@@ -147,9 +188,7 @@ export class DevicesPage implements OnInit {
   }
 
   openDeleteModal(device: DeviceItem): void {
-    if (this.isDeleting) {
-      return;
-    }
+    if (this.isDeleting) return;
 
     this.deviceToDelete = device;
     this.errorMessage = '';
@@ -157,18 +196,14 @@ export class DevicesPage implements OnInit {
   }
 
   closeDeleteModal(): void {
-    if (this.isDeleting) {
-      return;
-    }
+    if (this.isDeleting) return;
 
     this.isDeleteModalOpen = false;
     this.deviceToDelete = null;
   }
 
   deleteDevice(): void {
-    if (!this.deviceToDelete || this.isDeleting) {
-      return;
-    }
+    if (!this.deviceToDelete || this.isDeleting) return;
 
     this.isDeleting = true;
     this.errorMessage = '';
@@ -201,12 +236,7 @@ export class DevicesPage implements OnInit {
 
   formatDate(value: string): string {
     const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return value;
-    }
-
-    return date.toLocaleString();
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
   }
 
   getDeviceTypeLabel(device: DeviceItem): string {
@@ -215,15 +245,5 @@ export class DevicesPage implements OnInit {
 
   getRoomLabel(device: DeviceItem): string {
     return device.roomName || 'No room';
-  }
-
-  private createDefaultBindForm(): BindDeviceConnectionRequest {
-    return {
-      provider: 'SHELLY',
-      connectionType: 'LOCAL_HTTP',
-      ipAddress: '',
-      port: 80,
-      isEnabled: true
-    };
   }
 }

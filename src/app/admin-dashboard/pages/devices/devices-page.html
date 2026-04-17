@@ -40,50 +40,20 @@
 
         <tbody>
         <tr *ngFor="let device of devices; trackBy: trackByDevice">
-          <td class="device-name">
-            {{ device.name }}
-          </td>
-
-          <td>
-            {{ getDeviceTypeLabel(device) }}
-          </td>
-
-          <td>
-            {{ getRoomLabel(device) }}
-          </td>
-
-          <td>
-            {{ device.model || '-' }}
-          </td>
-
-          <td>
-            {{ device.firmwareVersion || '-' }}
-          </td>
-
+          <td class="device-name">{{ device.name }}</td>
+          <td>{{ getDeviceTypeLabel(device) }}</td>
+          <td>{{ getRoomLabel(device) }}</td>
+          <td>{{ device.model || '-' }}</td>
+          <td>{{ device.firmwareVersion || '-' }}</td>
           <td>
             <span class="status-badge" [class.active]="device.isActive">
               {{ device.isActive ? 'Active' : 'Inactive' }}
             </span>
           </td>
-
-          <td>
-            {{ formatDate(device.createdAt) }}
-          </td>
-
+          <td>{{ formatDate(device.createdAt) }}</td>
           <td class="actions">
-            <button
-              class="bind-btn"
-              type="button"
-              (click)="openBindPanel(device)">
-              Bind
-            </button>
-
-            <button
-              class="delete-btn"
-              type="button"
-              (click)="openDeleteModal(device)">
-              Delete
-            </button>
+            <button class="bind-btn" type="button" (click)="openBindPanel(device)">Bind</button>
+            <button class="delete-btn" type="button" (click)="openDeleteModal(device)">Delete</button>
           </td>
         </tr>
         </tbody>
@@ -93,113 +63,103 @@
   </div>
 </div>
 
-<!-- BIND SIDE PANEL -->
-
-<div
-  class="bind-panel-backdrop"
-  *ngIf="isBindPanelOpen"
-  (click)="closeBindPanel()"
->
-  <aside
-    class="bind-panel"
-    (click)="$event.stopPropagation()"
-  >
+<div class="bind-panel-backdrop" *ngIf="isBindPanelOpen" (click)="closeBindPanel()">
+  <aside class="bind-panel" (click)="$event.stopPropagation()">
     <div class="bind-header">
       <div>
         <div class="bind-kicker">Bind device</div>
         <h2>{{ deviceToBind?.name }}</h2>
       </div>
 
-      <button
-        type="button"
-        class="close-btn"
-        (click)="closeBindPanel()"
-        aria-label="Close bind panel"
-      >
+      <button type="button" class="close-btn" (click)="closeBindPanel()" aria-label="Close bind panel">
         ✕
       </button>
     </div>
 
     <p class="modal-subtitle">
-      Connect this device to a real Shelly smart plug.
+      Connect this device to a real Shelly smart plug via MQTT.
     </p>
 
-    <div class="field">
-      <label for="provider">Provider</label>
-      <input
-        id="provider"
-        type="text"
-        [ngModel]="bindForm.provider"
-        disabled
-      />
-    </div>
+    <ng-container *ngIf="!bindInitData; else bindInstructions">
+      <div class="field">
+        <label>Provider</label>
+        <input type="text" value="SHELLY" disabled />
+      </div>
 
-    <div class="field">
-      <label for="connectionType">Connection type</label>
-      <input
-        id="connectionType"
-        type="text"
-        [ngModel]="bindForm.connectionType"
-        disabled
-      />
-    </div>
+      <div class="field">
+        <label>Connection type</label>
+        <input type="text" value="MQTT" disabled />
+      </div>
 
-    <div class="field">
-      <label for="ipAddress">IP address</label>
-      <input
-        id="ipAddress"
-        type="text"
-        [(ngModel)]="bindForm.ipAddress"
-        placeholder="172.20.10.8"
-      />
-    </div>
+      <div class="bind-hint">
+        We will generate MQTT connection settings for this device.
+      </div>
 
-    <div class="field">
-      <label for="port">Port</label>
-      <input
-        id="port"
-        type="number"
-        [(ngModel)]="bindForm.port"
-        placeholder="80"
-      />
-    </div>
+      <div class="bind-actions">
+        <button type="button" class="secondary-btn" (click)="closeBindPanel()">Cancel</button>
+        <button type="button" class="primary-btn" [disabled]="isBinding" (click)="startBind()">
+          {{ isBinding ? 'Preparing...' : 'Generate Bind Data' }}
+        </button>
+      </div>
+    </ng-container>
 
-    <div class="bind-hint">
-      Use the local IP address of your Shelly plug. Example: 172.20.10.8
-    </div>
+    <ng-template #bindInstructions>
+      <div class="field">
+        <label>Broker host</label>
+        <input type="text" [value]="bindInitData?.brokerHost" readonly />
+      </div>
 
-    <div class="bind-actions">
-      <button
-        type="button"
-        class="secondary-btn"
-        (click)="closeBindPanel()"
-      >
-        Cancel
-      </button>
+      <div class="field">
+        <label>Broker port</label>
+        <input type="text" [value]="bindInitData?.brokerPort" readonly />
+      </div>
 
-      <button
-        type="button"
-        class="primary-btn"
-        [disabled]="isBinding"
-        (click)="bindDevice()"
-      >
-        {{ isBinding ? 'Saving...' : 'Save' }}
-      </button>
-    </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" [value]="bindInitData?.username" readonly />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="text" [value]="bindInitData?.password" readonly />
+      </div>
+
+      <div class="field">
+        <label>Topic prefix</label>
+        <input type="text" [value]="bindInitData?.topicPrefix" readonly />
+      </div>
+
+      <div class="field">
+        <label>Client ID mode</label>
+        <input type="text" [value]="bindInitData?.clientIdMode" readonly />
+      </div>
+
+      <div class="bind-hint">
+        Open Shelly MQTT settings, paste these values, save them, then enter the real device Client ID below.
+      </div>
+
+      <div class="field">
+        <label for="externalDeviceId">External device ID / Client ID</label>
+        <input
+          id="externalDeviceId"
+          type="text"
+          [(ngModel)]="externalDeviceId"
+          placeholder="SM2AE4B3233C53F0"
+        />
+      </div>
+
+      <div class="bind-actions">
+        <button type="button" class="secondary-btn" (click)="closeBindPanel()">Cancel</button>
+        <button type="button" class="primary-btn" [disabled]="isBinding" (click)="confirmBind()">
+          {{ isBinding ? 'Confirming...' : 'Confirm Bind' }}
+        </button>
+      </div>
+    </ng-template>
   </aside>
 </div>
 
-<!-- DELETE MODAL -->
-
-<div
-  class="modal-backdrop"
-  *ngIf="isDeleteModalOpen"
-  (click)="closeDeleteModal()"
->
-  <div
-    class="modal-card"
-    (click)="$event.stopPropagation()"
-  >
+<div class="modal-backdrop" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
     <h2>Delete {{ deviceToDelete?.name }}?</h2>
 
     <p class="modal-subtitle">
@@ -207,20 +167,8 @@
     </p>
 
     <div class="modal-actions">
-      <button
-        type="button"
-        class="secondary-btn"
-        (click)="closeDeleteModal()"
-      >
-        Cancel
-      </button>
-
-      <button
-        type="button"
-        class="danger-btn"
-        [disabled]="isDeleting"
-        (click)="deleteDevice()"
-      >
+      <button type="button" class="secondary-btn" (click)="closeDeleteModal()">Cancel</button>
+      <button type="button" class="danger-btn" [disabled]="isDeleting" (click)="deleteDevice()">
         {{ isDeleting ? 'Deleting...' : 'Delete' }}
       </button>
     </div>
