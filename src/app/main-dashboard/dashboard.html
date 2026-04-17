@@ -16,7 +16,15 @@
         </p>
       </div>
 
-      <div class="summary-grid">
+      <div class="dashboard-status" *ngIf="isLoading">
+        Loading dashboard data...
+      </div>
+
+      <div class="dashboard-status error" *ngIf="!isLoading && errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="summary-grid" *ngIf="!isLoading && !errorMessage">
         <mat-card
           class="summary-card"
           *ngFor="let item of summary; trackBy: trackByTitle"

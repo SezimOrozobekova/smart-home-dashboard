@@ -1,0 +1,15 @@
+export interface DashboardSummaryResponse {
+  devicesConnected: number;
+  activeDevices: number;
+  roomsMonitored: number;
+  estimatedMonthlyCost: number;
+  costDifferenceFromLastMonth: number;
+}
+
+export interface SummaryItem {
+  title: string;
+  value: string;
+  subtitle?: string;
+  icon: string;
+  type?: 'default' | 'danger' | 'success';
+}
