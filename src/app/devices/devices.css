@@ -14,6 +14,10 @@
   margin: 0 auto;
 }
 
+.device-card.is-updating {
+  opacity: 0.72;
+  pointer-events: none;
+}
 /* ===== HERO ===== */
 
 .devices-hero {
@@ -330,6 +334,124 @@
 
 .switch input:checked + .switch-slider::before {
   transform: translateX(20px);
+}
+
+
+
+.device-action-btn {
+  min-width: 104px;
+  height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    background 0.18s ease;
+}
+
+.device-action-btn.turn-on {
+  background: rgba(37, 99, 235, 0.10);
+  color: #2563eb;
+}
+
+.device-action-btn.turn-on:hover:not(:disabled) {
+  background: rgba(37, 99, 235, 0.18);
+  transform: translateY(-1px);
+}
+
+.device-action-btn.turn-off {
+  background: rgba(220, 38, 38, 0.10);
+  color: #dc2626;
+}
+
+.device-action-btn.turn-off:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.18);
+  transform: translateY(-1px);
+}
+
+.device-action-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+
+.device-card.is-updating {
+  opacity: 0.78;
+}
+
+.device-card.is-unknown {
+  border-color: #f59e0b;
+}
+
+.device-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.device-action-btn {
+  min-width: 108px;
+  height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    background 0.18s ease;
+  flex: 0 0 auto;
+}
+
+.device-action-btn.turn-on {
+  background: rgba(37, 99, 235, 0.10);
+  color: #2563eb;
+}
+
+.device-action-btn.turn-on:hover:not(:disabled) {
+  background: rgba(37, 99, 235, 0.18);
+  transform: translateY(-1px);
+}
+
+.device-action-btn.turn-off {
+  background: rgba(220, 38, 38, 0.10);
+  color: #dc2626;
+}
+
+.device-action-btn.turn-off:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.18);
+  transform: translateY(-1px);
+}
+
+.device-action-btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.device-status.unknown {
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.3);
 }
 
 /* ===== RESPONSIVE ===== */

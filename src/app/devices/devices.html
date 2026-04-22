@@ -15,10 +15,6 @@
       Loading devices...
     </div>
 
-    <div *ngIf="toggling && !loading" class="devices-state">
-      Updating device...
-    </div>
-
     <div *ngIf="error && !loading" class="devices-state devices-state-error">
       {{ error }}
     </div>
@@ -55,23 +51,30 @@
           <article
             class="device-card"
             *ngFor="let device of room.devices; trackBy: trackByDevice"
-            [class.is-active]="device.active"
+            [class.is-active]="device.isOn"
+            [class.is-updating]="isDevicePending(device.id)"
+            [class.is-unknown]="isDeviceUnknown(device.id)"
           >
             <div class="device-card-top">
               <div class="device-meta">
                 <div class="device-type">{{ device.type }}</div>
-                <h3 class="device-name">{{ device.name }}</h3>
+                <h3 class="device-name" [title]="device.name">{{ device.name }}</h3>
               </div>
 
-              <label class="switch" [attr.aria-label]="'Toggle ' + device.name">
-                <input
-                  type="checkbox"
-                  [checked]="device.active"
-                  [disabled]="toggling"
-                  (change)="toggleDevice(device)"
-                />
-                <span class="switch-slider"></span>
-              </label>
+              <button
+                type="button"
+                class="device-action-btn"
+                [class.turn-on]="!device.isOn"
+                [class.turn-off]="device.isOn"
+                [disabled]="isDevicePending(device.id)"
+                (click)="toggleDevice(device)"
+              >
+                {{
+                  isDevicePending(device.id)
+                    ? 'Updating...'
+                    : (device.isOn ? 'Turn off' : 'Turn on')
+                }}
+              </button>
             </div>
 
             <div class="device-reading">
@@ -87,8 +90,18 @@
 
             <div class="device-footer">
               <div class="device-status-wrap">
-                <span class="device-status" [class.on]="device.active">
-                  {{ device.active ? 'Active' : 'Offline' }}
+                <span
+                  class="device-status"
+                  [class.on]="device.isOn && !isDeviceUnknown(device.id)"
+                  [class.unknown]="isDeviceUnknown(device.id)"
+                >
+                  {{
+                    isDevicePending(device.id)
+                      ? 'Updating...'
+                      : isDeviceUnknown(device.id)
+                        ? 'Unknown'
+                        : (device.isOn ? 'On' : 'Off')
+                  }}
                 </span>
 
                 <span class="device-updated">
