@@ -44,10 +44,7 @@ export class Devices implements OnInit {
   loading = false;
   error = '';
 
-  // устройства, по которым ждём подтверждение
   pendingDeviceIds = new Set<string>();
-
-  // устройства, по которым не удалось подтвердить новое состояние
   unknownDeviceIds = new Set<string>();
 
   ngOnInit(): void {
@@ -89,33 +86,35 @@ export class Devices implements OnInit {
     this.cdr.detectChanges();
 
     const previousIsOn = device.isOn;
+    const desiredOn = !device.isOn;
 
-    this.http.post(`${this.apiUrl}/device-states/${device.id}/toggle`, {})
-      .subscribe({
-        next: async () => {
-          try {
-            const confirmed = await this.pollUntilDeviceStateChanges(device.id, previousIsOn);
+    this.http.post(`${this.apiUrl}/device-states/${device.id}/power`, {
+      on: desiredOn
+    }).subscribe({
+      next: async () => {
+        try {
+          const confirmed = await this.pollUntilDeviceStateChanges(device.id, previousIsOn);
 
-            if (!confirmed) {
-              this.unknownDeviceIds.add(device.id);
-            }
-          } catch (err) {
-            console.error('Polling after toggle failed:', err);
-            this.error = 'Device status update is delayed';
+          if (!confirmed) {
             this.unknownDeviceIds.add(device.id);
-          } finally {
-            this.pendingDeviceIds.delete(device.id);
-            this.cdr.detectChanges();
           }
-        },
-        error: (err) => {
-          console.error('Failed to toggle device:', err);
-          this.error = 'Failed to toggle device';
-          this.pendingDeviceIds.delete(device.id);
+        } catch (err) {
+          console.error('Polling after power command failed:', err);
+          this.error = 'Device status update is delayed';
           this.unknownDeviceIds.add(device.id);
+        } finally {
+          this.pendingDeviceIds.delete(device.id);
           this.cdr.detectChanges();
         }
-      });
+      },
+      error: (err) => {
+        console.error('Failed to change device power:', err);
+        this.error = 'Failed to change device power';
+        this.pendingDeviceIds.delete(device.id);
+        this.unknownDeviceIds.add(device.id);
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   private async pollUntilDeviceStateChanges(deviceId: string, previousIsOn: boolean): Promise<boolean> {
@@ -141,7 +140,6 @@ export class Devices implements OnInit {
       }
     }
 
-    // Финальный refresh перед тем как признать состояние неподтвержденным
     try {
       const rooms = await this.fetchDevicesByRoom(requestTimeoutMs);
       this.rooms = rooms;

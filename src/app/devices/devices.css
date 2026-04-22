@@ -380,8 +380,6 @@
   transform: none;
 }
 
-
-
 .device-card.is-updating {
   opacity: 0.78;
 }
@@ -453,7 +451,6 @@
   color: #b45309;
   border-color: rgba(245, 158, 11, 0.3);
 }
-
 /* ===== RESPONSIVE ===== */
 
 @media (max-width: 980px) {
