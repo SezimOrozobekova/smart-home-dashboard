@@ -85,7 +85,6 @@ export class Devices implements OnInit {
     this.error = '';
     this.cdr.detectChanges();
 
-    const previousIsOn = device.isOn;
     const desiredOn = !device.isOn;
 
     this.http.post(`${this.apiUrl}/device-states/${device.id}/power`, {
@@ -93,10 +92,14 @@ export class Devices implements OnInit {
     }).subscribe({
       next: async () => {
         try {
-          const confirmed = await this.pollUntilDeviceStateChanges(device.id, previousIsOn);
+          const confirmed = await this.pollUntilDeviceStateMatches(device.id, desiredOn);
 
           if (!confirmed) {
-            this.unknownDeviceIds.add(device.id);
+            const latestDevice = this.findDeviceById(device.id);
+
+            if (!latestDevice || latestDevice.isOn !== desiredOn) {
+              this.unknownDeviceIds.add(device.id);
+            }
           }
         } catch (err) {
           console.error('Polling after power command failed:', err);
@@ -117,8 +120,8 @@ export class Devices implements OnInit {
     });
   }
 
-  private async pollUntilDeviceStateChanges(deviceId: string, previousIsOn: boolean): Promise<boolean> {
-    const delays = [500, 900, 1300, 1800, 2500];
+  private async pollUntilDeviceStateMatches(deviceId: string, desiredOn: boolean): Promise<boolean> {
+    const delays = [400, 700, 1000, 1500, 2200];
     const requestTimeoutMs = 4000;
 
     for (const delay of delays) {
@@ -131,7 +134,7 @@ export class Devices implements OnInit {
 
         const updatedDevice = this.findDeviceById(deviceId);
 
-        if (updatedDevice && updatedDevice.isOn !== previousIsOn) {
+        if (updatedDevice && updatedDevice.isOn === desiredOn) {
           this.unknownDeviceIds.delete(deviceId);
           return true;
         }
