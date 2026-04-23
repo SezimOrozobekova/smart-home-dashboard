@@ -40,6 +40,8 @@ export class Devices implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly apiUrl = '/api';
 
+  private readonly freshnessWindowMs = 20_000;
+
   rooms: RoomDevices[] = [];
   loading = false;
   error = '';
@@ -97,7 +99,7 @@ export class Devices implements OnInit {
           if (!confirmed) {
             const latestDevice = this.findDeviceById(device.id);
 
-            if (!latestDevice || latestDevice.isOn !== desiredOn) {
+            if (!latestDevice || !this.isDesiredStateFresh(latestDevice, desiredOn)) {
               this.unknownDeviceIds.add(device.id);
             }
           }
@@ -134,7 +136,7 @@ export class Devices implements OnInit {
 
         const updatedDevice = this.findDeviceById(deviceId);
 
-        if (updatedDevice && updatedDevice.isOn === desiredOn) {
+        if (updatedDevice && this.isDesiredStateFresh(updatedDevice, desiredOn)) {
           this.unknownDeviceIds.delete(deviceId);
           return true;
         }
@@ -152,6 +154,27 @@ export class Devices implements OnInit {
     }
 
     return false;
+  }
+
+  private isDesiredStateFresh(device: DeviceItem, desiredOn: boolean): boolean {
+    if (device.isOn !== desiredOn) {
+      return false;
+    }
+
+    return this.isFresh(device.updatedAt);
+  }
+
+  private isFresh(updatedAt: string | null): boolean {
+    if (!updatedAt) {
+      return false;
+    }
+
+    const updatedTime = new Date(updatedAt).getTime();
+    if (Number.isNaN(updatedTime)) {
+      return false;
+    }
+
+    return Date.now() - updatedTime <= this.freshnessWindowMs;
   }
 
   private async fetchDevicesByRoom(requestTimeoutMs: number): Promise<RoomDevices[]> {
