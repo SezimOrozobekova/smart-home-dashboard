@@ -10,10 +10,9 @@ export interface EnergyPoint {
 
 export interface MonthlyEnergy {
   month: string;
-  firstTotalWh: number;
-  lastTotalWh: number;
   consumedWh: number;
   consumedKwh: number;
+  cost: number;
 }
 
 @Injectable({

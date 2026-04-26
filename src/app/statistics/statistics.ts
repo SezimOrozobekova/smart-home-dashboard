@@ -218,11 +218,4 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
     this.chart = null;
   }
 
-  getCost(): number {
-    if (!this.monthly) {
-      return 0;
-    }
-
-    return this.monthly.consumedKwh * 2.16;
-  }
 }
