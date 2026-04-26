@@ -83,13 +83,20 @@ export class Dashboard implements OnInit {
         type: 'default'
       },
       {
+        title: 'Monthly Energy',
+        value: `${data.consumedKwh.toFixed(3)} kWh`,
+        subtitle: `${data.consumedWh.toFixed(0)} Wh consumed this month`,
+        icon: 'bolt',
+        type: 'default'
+      },
+      {
         title: 'Estimated Monthly Cost',
-        value: `$${data.estimatedMonthlyCost.toFixed(2)}`,
+        value: `${data.estimatedMonthlyCost.toFixed(2)} som`,
         subtitle:
           diff > 0
-            ? `$${absDiff} higher than last month`
+            ? `${absDiff} som higher than last month`
             : diff < 0
-              ? `$${absDiff} lower than last month`
+              ? `${absDiff} som lower than last month`
               : 'Same as last month',
         icon: 'payments',
         type: diff > 0 ? 'danger' : 'success'

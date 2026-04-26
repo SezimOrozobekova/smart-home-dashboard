@@ -2,6 +2,8 @@ export interface DashboardSummaryResponse {
   devicesConnected: number;
   activeDevices: number;
   roomsMonitored: number;
+  consumedWh: number;
+  consumedKwh: number;
   estimatedMonthlyCost: number;
   costDifferenceFromLastMonth: number;
 }
