@@ -80,7 +80,7 @@
         No chart data for today
       </div>
 
-      <div class="chart-box" *ngIf="!chartLoading && dailyPoints.length">
+      <div class="chart-box" [class.hidden-chart]="chartLoading || !dailyPoints.length">
         <canvas #chartCanvas></canvas>
       </div>
     </div>

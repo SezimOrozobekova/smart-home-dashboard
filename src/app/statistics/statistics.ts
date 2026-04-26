@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnDestroy,
@@ -27,7 +28,7 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
   private readonly energyService = inject(EnergyService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private intervalId: any;
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('chartCanvas') chartCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -44,6 +45,7 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
   error = '';
 
   private viewReady = false;
+  private refreshIntervalId: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.deviceId = this.route.snapshot.paramMap.get('id') ?? '';
@@ -56,8 +58,9 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
     this.loadMonthly();
     this.loadDaily();
 
-    this.intervalId = setInterval(() => {
-      this.loadDaily();
+    this.refreshIntervalId = setInterval(() => {
+      this.loadMonthly(true);
+      this.loadDaily(true);
     }, 15000);
   }
 
@@ -68,8 +71,9 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.chart?.destroy();
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
+
+    if (this.refreshIntervalId) {
+      clearInterval(this.refreshIntervalId);
     }
   }
 
@@ -83,28 +87,33 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
     return new Date(now.getTime() - offset).toISOString().slice(0, 10);
   }
 
-  loadMonthly(): void {
+  loadMonthly(silent = false): void {
     const month = this.today.slice(0, 7);
-    this.monthlyLoading = true;
-    this.error = '';
+
+    if (!silent) {
+      this.monthlyLoading = true;
+    }
 
     this.energyService.getMonthly(this.deviceId, month).subscribe({
       next: (res) => {
         this.monthly = res;
         this.monthlyLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Monthly energy error:', err);
         this.monthly = null;
         this.monthlyLoading = false;
         this.error = 'Failed to load monthly statistics';
+        this.cdr.detectChanges();
       }
     });
   }
 
-  loadDaily(): void {
-    this.chartLoading = true;
-    this.error = '';
+  loadDaily(silent = false): void {
+    if (!silent) {
+      this.chartLoading = true;
+    }
 
     this.energyService.getDailyChart(this.deviceId, this.today).subscribe({
       next: (data) => {
@@ -115,19 +124,30 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
         );
 
         this.chartLoading = false;
-        this.tryRenderChart();
+        this.cdr.detectChanges();
+
+        setTimeout(() => {
+          this.tryRenderChart();
+        });
       },
       error: (err) => {
         console.error('Daily energy chart error:', err);
         this.dailyPoints = [];
         this.chartLoading = false;
         this.error = 'Failed to load daily chart';
+        this.cdr.detectChanges();
+        this.destroyChart();
       }
     });
   }
 
-  tryRenderChart(): void {
-    if (!this.viewReady || !this.chartCanvas || !this.dailyPoints.length) {
+  private tryRenderChart(): void {
+    if (!this.viewReady || !this.chartCanvas) {
+      return;
+    }
+
+    if (!this.dailyPoints.length) {
+      this.destroyChart();
       return;
     }
 
@@ -193,12 +213,16 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private destroyChart(): void {
+    this.chart?.destroy();
+    this.chart = null;
+  }
+
   getCost(): number {
     if (!this.monthly) {
       return 0;
     }
 
-    const tariff = 2.16;
-    return this.monthly.consumedKwh * tariff;
+    return this.monthly.consumedKwh * 2.16;
   }
 }
