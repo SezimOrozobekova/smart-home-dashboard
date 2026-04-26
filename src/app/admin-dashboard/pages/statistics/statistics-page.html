@@ -5,33 +5,121 @@
         <div class="eyebrow">Analytics</div>
         <h1 class="page-title">Energy Statistics</h1>
         <p class="page-subtitle">
-          Мониторинг потребления энергии и стоимости
+          Мониторинг потребления энергии и стоимости по всем устройствам
         </p>
       </div>
     </div>
 
+    <div class="controls">
+      <div class="period-tabs">
+        <button
+          type="button"
+          [class.active]="selectedPeriod === 'DAY'"
+          (click)="selectPeriod('DAY')"
+        >
+          Day
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedPeriod === 'WEEK'"
+          (click)="selectPeriod('WEEK')"
+        >
+          Week
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedPeriod === 'MONTH'"
+          (click)="selectPeriod('MONTH')"
+        >
+          Month
+        </button>
+      </div>
+
+      <label class="date-control">
+        Date
+        <input
+          type="date"
+          [(ngModel)]="selectedDate"
+          (change)="onDateChange()"
+        />
+      </label>
+    </div>
+
+    <div *ngIf="errorMessage" class="state state-error">
+      {{ errorMessage }}
+    </div>
+
     <div class="cards">
       <div class="card">
-        <h3>This Month</h3>
+        <span class="card-label">Selected Period</span>
+        <h3>Total Energy</h3>
 
-        <ng-container *ngIf="monthlyLoading">
-          <p>Loading monthly data...</p>
+        <div *ngIf="chartLoading" class="card-muted">
+          Loading chart data...
+        </div>
+
+        <ng-container *ngIf="!chartLoading">
+          <div class="metric">
+            {{ getTotalKwh() | number:'1.3-3' }}
+            <span>kWh</span>
+          </div>
+
+          <p class="card-muted">
+            {{ getTotalCost() | number:'1.2-2' }} сом
+          </p>
         </ng-container>
+      </div>
+
+      <div class="card">
+        <span class="card-label">Current Month</span>
+        <h3>Monthly Cost</h3>
+
+        <div *ngIf="monthlyLoading" class="card-muted">
+          Loading monthly data...
+        </div>
 
         <ng-container *ngIf="!monthlyLoading && monthly">
-          <p><b>{{ monthly.consumedKwh }}</b> kWh</p>
-          <p>{{ monthly.consumedWh }} Wh</p>
-          <p class="cost">💰 {{ getCost() | number:'1.2-2' }} сом</p>
+          <div class="metric">
+            {{ monthly.consumedKwh | number:'1.3-3' }}
+            <span>kWh</span>
+          </div>
+
+          <p class="card-muted">
+            {{ monthly.consumedWh | number:'1.0-2' }} Wh
+          </p>
+
+          <p class="cost">
+            💰 {{ monthly.cost | number:'1.2-2' }} сом
+          </p>
         </ng-container>
 
-        <ng-container *ngIf="!monthlyLoading && !monthly">
-          <p>No monthly data</p>
-        </ng-container>
+        <div *ngIf="!monthlyLoading && !monthly" class="card-muted">
+          No monthly data
+        </div>
       </div>
     </div>
 
     <div class="chart-container">
-      <div class="chart-box">
+      <div class="chart-header">
+        <div>
+          <h2>{{ getPeriodTitle() }}</h2>
+          <p>
+            Aggregated consumption across all devices in your homes.
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="chartLoading" class="state">
+        Loading chart...
+      </div>
+
+      <div *ngIf="!chartLoading && !chartPoints.length" class="state">
+        No chart data for selected period
+      </div>
+
+      <div class="chart-box" [class.hidden-chart]="chartLoading || !chartPoints.length">
         <canvas #chartCanvas></canvas>
       </div>
     </div>

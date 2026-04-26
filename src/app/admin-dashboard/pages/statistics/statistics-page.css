@@ -120,6 +120,138 @@
   height: 100% !important;
 }
 
+/* CONTROLS */
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.period-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.period-tabs button {
+  border: 1px solid #dbeafe;
+  background: #ffffff;
+  color: #2563eb;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.period-tabs button:hover {
+  background: #eff6ff;
+}
+
+.period-tabs button.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.date-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.date-control input {
+  min-width: 180px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  color: #111827;
+  background: #ffffff;
+  outline: none;
+}
+
+.date-control input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* CARD DETAILS */
+
+.card-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2563eb;
+}
+
+.metric {
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #111827;
+  margin: 8px 0;
+}
+
+.metric span {
+  font-size: 15px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.card-muted {
+  color: #6b7280;
+}
+
+/* CHART HEADER / STATES */
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-header h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  color: #111827;
+}
+
+.chart-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.state {
+  padding: 18px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.state-error {
+  margin-bottom: 20px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 14px;
+}
+
+.hidden-chart {
+  display: none;
+}
+
 /* TABLET */
 
 @media (max-width: 992px) {
@@ -178,6 +310,26 @@
 
   .chart-box {
     min-height: 240px;
+  }
+
+  .controls {
+    align-items: stretch;
+  }
+
+  .period-tabs {
+    width: 100%;
+  }
+
+  .period-tabs button {
+    flex: 1;
+  }
+
+  .date-control input {
+    width: 100%;
+  }
+
+  .chart-header {
+    flex-direction: column;
   }
 }
 
