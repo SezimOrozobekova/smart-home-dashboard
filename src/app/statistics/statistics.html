@@ -1,0 +1,88 @@
+<div class="statistics-page">
+  <div class="statistics-shell">
+    <div class="statistics-hero">
+      <div>
+        <div class="eyebrow">Analytics</div>
+        <h1 class="page-title">Energy Statistics</h1>
+        <p class="page-subtitle">
+          Device energy usage, daily power chart and monthly cost.
+        </p>
+      </div>
+
+      <button type="button" class="back-btn" (click)="goBack()">
+        Back to devices
+      </button>
+    </div>
+
+    <div *ngIf="error" class="state state-error">
+      {{ error }}
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <span class="card-label">This Month</span>
+        <h3>Energy Consumption</h3>
+
+        <div *ngIf="monthlyLoading" class="card-muted">
+          Loading monthly data...
+        </div>
+
+        <ng-container *ngIf="!monthlyLoading && monthly">
+          <div class="metric">
+            {{ monthly.consumedKwh | number:'1.3-3' }}
+            <span>kWh</span>
+          </div>
+
+          <p class="card-muted">
+            {{ monthly.consumedWh | number:'1.0-2' }} Wh
+          </p>
+
+          <p class="cost">
+            💰 {{ getCost() | number:'1.2-2' }} сом
+          </p>
+        </ng-container>
+
+        <div *ngIf="!monthlyLoading && !monthly" class="card-muted">
+          No monthly data
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="card-label">Today</span>
+        <h3>Saved Snapshots</h3>
+
+        <div class="metric">
+          {{ dailyPoints.length }}
+          <span>points</span>
+        </div>
+
+        <p class="card-muted">
+          {{ today }}
+        </p>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-header">
+        <div>
+          <h2>Power Usage Today</h2>
+          <p>
+            Power readings from saved telemetry snapshots.
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="chartLoading" class="state">
+        Loading chart...
+      </div>
+
+      <div *ngIf="!chartLoading && !dailyPoints.length" class="state">
+        No chart data for today
+      </div>
+
+      <div class="chart-box" *ngIf="!chartLoading && dailyPoints.length">
+        <canvas #chartCanvas></canvas>
+      </div>
+    </div>
+  </div>
+</div>

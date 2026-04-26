@@ -109,7 +109,17 @@
                 </span>
               </div>
 
-              <span class="device-room">{{ device.room }}</span>
+              <div class="device-footer-actions">
+                <span class="device-room">{{ device.room }}</span>
+
+                <button
+                  type="button"
+                  class="stats-btn"
+                  (click)="openStatistics(device)"
+                >
+                  Statistics
+                </button>
+              </div>
             </div>
           </article>
         </div>

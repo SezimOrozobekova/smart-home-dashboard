@@ -38,6 +38,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'statistics/device/:id',
+    loadComponent: () => import('./statistics/statistics').then(m => m.Statistics),
+    canActivate: [authGuard]
+  },
+  {
     path: 'admin',
     loadComponent: () =>
       import('./admin-dashboard/admin-dashboard').then(m => m.AdminDashboard),

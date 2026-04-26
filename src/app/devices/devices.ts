@@ -7,6 +7,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, timeout } from 'rxjs';
+import { Router } from '@angular/router';
 
 type DeviceItem = {
   id: string;
@@ -41,6 +42,12 @@ export class Devices implements OnInit {
   private readonly apiUrl = '/api';
 
   private readonly freshnessWindowMs = 20_000;
+
+  private readonly router = inject(Router);
+
+  openStatistics(device: DeviceItem): void {
+    this.router.navigate(['/statistics/device', device.id]);
+  }
 
   rooms: RoomDevices[] = [];
   loading = false;

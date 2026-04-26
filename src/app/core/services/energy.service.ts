@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 
 export interface EnergyPoint {
   recordedAt: string;
-  powerWatts: number;
-  totalEnergyWh: number;
+  powerWatts: number | null;
+  totalEnergyWh: number | null;
 }
 
 export interface MonthlyEnergy {
@@ -20,8 +20,8 @@ export interface MonthlyEnergy {
   providedIn: 'root'
 })
 export class EnergyService {
-  private http = inject(HttpClient);
-  private api = '/api/device-energy';
+  private readonly http = inject(HttpClient);
+  private readonly api = '/api/device-energy';
 
   getDailyChart(deviceId: string, date: string): Observable<EnergyPoint[]> {
     return this.http.get<EnergyPoint[]>(
