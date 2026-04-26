@@ -27,6 +27,7 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
   private readonly energyService = inject(EnergyService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private intervalId: any;
 
   @ViewChild('chartCanvas') chartCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -54,6 +55,10 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
 
     this.loadMonthly();
     this.loadDaily();
+
+    this.intervalId = setInterval(() => {
+      this.loadDaily();
+    }, 15000);
   }
 
   ngAfterViewInit(): void {
@@ -63,6 +68,9 @@ export class Statistics implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.chart?.destroy();
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   }
 
   goBack(): void {
