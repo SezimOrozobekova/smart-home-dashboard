@@ -16,21 +16,30 @@ interface DeviceTypeResponse {
 }
 
 export interface SaveLayoutRequest {
-  roomWidth: number
-  roomDepth: number
-  items: any[]
+  roomWidth: number;
+  roomDepth: number;
+  items: any[];
+}
+
+export interface RoomLayoutResponse {
+  roomId: string;
+  roomName: string;
+  roomWidth: number;
+  roomDepth: number;
+  items: any[];
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoomEditorApiService {
-  private readonly endpoint = '/api/device-types';
+  private readonly deviceTypesEndpoint = '/api/device-types';
+  private readonly roomsEndpoint = '/api/rooms';
 
   constructor(private http: HttpClient) {}
 
   getEditorModels(): Observable<EditorModelItem[]> {
-    return this.http.get<DeviceTypeResponse[]>(this.endpoint).pipe(
+    return this.http.get<DeviceTypeResponse[]>(this.deviceTypesEndpoint).pipe(
       map((deviceTypes) =>
         deviceTypes
           .filter((item) => item.isActive)
@@ -44,7 +53,13 @@ export class RoomEditorApiService {
     );
   }
 
+  getLayout(roomId: string): Observable<RoomLayoutResponse> {
+    return this.http.get<RoomLayoutResponse>(
+      `${this.roomsEndpoint}/${roomId}/layout`
+    );
+  }
+
   saveLayout(roomId: string, payload: SaveLayoutRequest) {
-    return this.http.put(`/api/rooms/${roomId}/layout`, payload)
+    return this.http.put(`${this.roomsEndpoint}/${roomId}/layout`, payload);
   }
 }

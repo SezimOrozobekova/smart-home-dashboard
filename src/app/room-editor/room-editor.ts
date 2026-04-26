@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
-import { ActivatedRoute, Router } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router';
 import { RoomEditorSceneService } from './services/room-editor-scene.service';
 import { ROOM_EDITOR_MODELS, EditorModelItem } from './services/room-editor-models';
 import { RoomEditorApiService } from './services/room-editor-api.service';
@@ -32,7 +32,10 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
 
   roomWidth = 12;
   roomDepth = 12;
-  private roomId = ''
+
+  private roomId = '';
+
+  isSidebarOpen = false;
 
   constructor(
     private sceneService: RoomEditorSceneService,
@@ -41,15 +44,21 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router
   ) {}
+
   ngOnInit(): void {
+    this.roomId = this.route.snapshot.paramMap.get('roomId') ?? '';
 
-    this.roomId = this.route.snapshot.paramMap.get('roomId') ?? ''
+    if (!this.roomId) {
+      this.errorMessage = 'Room id is missing';
+      return;
+    }
 
-    this.loadModels()
+    this.loadModels();
   }
 
   ngAfterViewInit(): void {
     this.sceneService.init(this.sceneHost);
+    this.loadLayout();
   }
 
   private loadModels(): void {
@@ -77,6 +86,27 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  private loadLayout(): void {
+    if (!this.roomId) {
+      return;
+    }
+
+    this.roomEditorApiService.getLayout(this.roomId).subscribe({
+      next: (layout) => {
+        this.roomWidth = layout.roomWidth ?? 12;
+        this.roomDepth = layout.roomDepth ?? 12;
+
+        this.sceneService.updateRoomSize(this.roomWidth, this.roomDepth);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to load room layout:', error);
+        this.errorMessage = 'Failed to load room layout';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   addModel(model: EditorModelItem): void {
     this.sceneService.addModel(model);
   }
@@ -93,40 +123,37 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
     const width = Number(this.roomWidth);
     const depth = Number(this.roomDepth);
 
-    if (Number.isNaN(width) || Number.isNaN(depth)) return;
-    if (width < 4 || depth < 4) return;
+    if (Number.isNaN(width) || Number.isNaN(depth)) {
+      return;
+    }
+
+    if (width < 4 || depth < 4) {
+      return;
+    }
+
+    this.roomWidth = width;
+    this.roomDepth = depth;
 
     this.sceneService.updateRoomSize(width, depth);
   }
 
-  ngOnDestroy(): void {
-    this.sceneService.destroy();
-  }
-
   saveLayout(): void {
-
-    const layout = this.sceneService.getLayoutSnapshot()
+    const layout = this.sceneService.getLayoutSnapshot();
 
     this.roomEditorApiService
       .saveLayout(this.roomId, layout)
       .subscribe({
         next: () => {
-
-          console.log('Layout saved')
-
-          this.router.navigate(['/admin/rooms'])
-
+          console.log('Layout saved');
+          this.router.navigate(['/admin/rooms']);
         },
         error: (err) => {
-
-          console.error('Failed to save layout', err)
-
+          console.error('Failed to save layout', err);
+          this.errorMessage = 'Failed to save layout';
+          this.cdr.detectChanges();
         }
-      })
-
+      });
   }
-
-  isSidebarOpen = false;
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -134,5 +161,9 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
 
   closeSidebar(): void {
     this.isSidebarOpen = false;
+  }
+
+  ngOnDestroy(): void {
+    this.sceneService.destroy();
   }
 }
