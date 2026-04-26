@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
-import { EditorModelItem } from './room-editor-models';
+import { EditorModelItem, RoomLayoutItem } from './room-editor-models';
 
 @Injectable({
   providedIn: 'root'
@@ -168,6 +168,7 @@ export class RoomEditorSceneService {
     for (const object of this.roomObjects) {
       this.scene.remove(object);
     }
+
     this.roomObjects = [];
   }
 
@@ -177,13 +178,7 @@ export class RoomEditorSceneService {
       (gltf) => {
         const model = gltf.scene;
 
-        model.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh) {
-            const mesh = child as THREE.Mesh;
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-          }
-        });
+        this.prepareModelShadows(model);
 
         if (modelItem.scale) {
           model.scale.setScalar(modelItem.scale);
@@ -192,6 +187,7 @@ export class RoomEditorSceneService {
         const initialBox = new THREE.Box3().setFromObject(model);
         const minY = initialBox.min.y;
 
+        model.userData['deviceId'] = null;
         model.userData['deviceTypeId'] = modelItem.id;
         model.userData['deviceName'] = modelItem.name;
         model.userData['isPlacedObject'] = true;
@@ -214,6 +210,60 @@ export class RoomEditorSceneService {
         console.error('Error loading model:', error);
       }
     );
+  }
+
+  loadLayoutItems(items: RoomLayoutItem[]): void {
+    this.clearPlacedObjects();
+
+    for (const item of items) {
+      const modelPath = `/assets/models/${item.deviceTypeCode.toLowerCase()}.glb`;
+
+      this.loader.load(
+        modelPath,
+        (gltf) => {
+          const model = gltf.scene;
+
+          this.prepareModelShadows(model);
+
+          model.userData['deviceId'] = item.deviceId;
+          model.userData['deviceTypeId'] = item.deviceTypeId;
+          model.userData['deviceName'] = item.name;
+          model.userData['isPlacedObject'] = true;
+
+          model.position.set(item.positionX, item.positionY, item.positionZ);
+          model.rotation.set(item.rotationX, item.rotationY, item.rotationZ);
+          model.scale.set(item.scaleX, item.scaleY, item.scaleZ);
+
+          this.scene.add(model);
+          this.placedObjects.push(model);
+        },
+        undefined,
+        (error) => {
+          console.error('Error loading saved layout model:', error);
+        }
+      );
+    }
+  }
+
+  private clearPlacedObjects(): void {
+    this.transformControls.detach();
+    this.selectedObject = null;
+
+    for (const object of this.placedObjects) {
+      this.scene.remove(object);
+    }
+
+    this.placedObjects = [];
+  }
+
+  private prepareModelShadows(model: THREE.Object3D): void {
+    model.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+      }
+    });
   }
 
   setMode(mode: 'translate' | 'rotate' | 'scale'): void {
@@ -348,24 +398,11 @@ export class RoomEditorSceneService {
     return null;
   }
 
-  destroy(): void {
-    if (this.rafId) cancelAnimationFrame(this.rafId);
-
-    this.resizeObserver?.disconnect();
-    this.orbitControls?.dispose();
-    this.transformControls?.dispose();
-
-    if (this.renderer?.domElement) {
-      this.renderer.domElement.removeEventListener('pointerdown', this.onPointerDown);
-    }
-
-    this.renderer?.dispose();
-  }
   getLayoutSnapshot() {
     return {
       roomWidth: this.roomWidth,
       roomDepth: this.roomDepth,
-      items: this.placedObjects.map(obj => ({
+      items: this.placedObjects.map((obj) => ({
         deviceTypeId: obj.userData['deviceTypeId'],
         name: obj.userData['deviceName'],
 
@@ -384,4 +421,17 @@ export class RoomEditorSceneService {
     };
   }
 
+  destroy(): void {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+
+    this.resizeObserver?.disconnect();
+    this.orbitControls?.dispose();
+    this.transformControls?.dispose();
+
+    if (this.renderer?.domElement) {
+      this.renderer.domElement.removeEventListener('pointerdown', this.onPointerDown);
+    }
+
+    this.renderer?.dispose();
+  }
 }

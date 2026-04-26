@@ -97,6 +97,7 @@ export class RoomEditor implements OnInit, AfterViewInit, OnDestroy {
         this.roomDepth = layout.roomDepth ?? 12;
 
         this.sceneService.updateRoomSize(this.roomWidth, this.roomDepth);
+        this.sceneService.loadLayoutItems(layout.items ?? []);
         this.cdr.detectChanges();
       },
       error: (error) => {
