@@ -111,7 +111,7 @@
 .chart-box {
   position: relative;
   width: 100%;
-  min-height: 320px;
+  height: 320px;
 }
 
 .chart-box canvas {
@@ -119,6 +119,7 @@
   width: 100% !important;
   height: 100% !important;
 }
+
 
 /* CONTROLS */
 
@@ -268,8 +269,9 @@
   }
 
   .chart-box {
-    min-height: 280px;
+    height: 280px;
   }
+
 }
 
 /* MOBILE */
@@ -309,9 +311,8 @@
   }
 
   .chart-box {
-    min-height: 240px;
+    height: 240px;
   }
-
   .controls {
     align-items: stretch;
   }
@@ -384,7 +385,7 @@
   }
 
   .chart-box {
-    min-height: 220px;
+    height: 220px;
   }
 }
 
@@ -403,6 +404,6 @@
   }
 
   .chart-box {
-    min-height: 200px;
+    height: 200px;
   }
 }

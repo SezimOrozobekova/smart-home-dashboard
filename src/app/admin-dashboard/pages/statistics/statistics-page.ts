@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnDestroy,
@@ -25,7 +26,8 @@ import {
   styleUrl: './statistics-page.css'
 })
 export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
-  private energyService = inject(EnergyService);
+  private readonly energyService = inject(EnergyService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('chartCanvas') chartCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -52,14 +54,18 @@ export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.viewReady = true;
-    this.tryRenderChart();
+    this.scheduleChartRender();
   }
 
   ngOnDestroy(): void {
-    this.chart?.destroy();
+    this.destroyChart();
   }
 
   selectPeriod(period: EnergyPeriod): void {
+    if (this.selectedPeriod === period) {
+      return;
+    }
+
     this.selectedPeriod = period;
     this.loadChart();
   }
@@ -79,12 +85,14 @@ export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
       next: (res) => {
         this.monthly = res;
         this.monthlyLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('monthly error', err);
         this.monthly = null;
         this.monthlyLoading = false;
         this.errorMessage = 'Failed to load monthly data';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -92,6 +100,7 @@ export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
   loadChart(): void {
     this.chartLoading = true;
     this.errorMessage = '';
+    this.destroyChart();
 
     this.energyService
       .getMyEnergyChart(this.selectedPeriod, this.selectedDate)
@@ -99,7 +108,9 @@ export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
         next: (data) => {
           this.chartPoints = data ?? [];
           this.chartLoading = false;
-          this.tryRenderChart();
+
+          this.cdr.detectChanges();
+          this.scheduleChartRender();
         },
         error: (err) => {
           console.error('chart error', err);
@@ -107,11 +118,19 @@ export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
           this.chartLoading = false;
           this.errorMessage = 'Failed to load chart data';
           this.destroyChart();
+
+          this.cdr.detectChanges();
         }
       });
   }
 
-  tryRenderChart(): void {
+  private scheduleChartRender(): void {
+    requestAnimationFrame(() => {
+      this.tryRenderChart();
+    });
+  }
+
+  private tryRenderChart(): void {
     if (!this.viewReady || !this.chartCanvas) {
       return;
     }
@@ -127,23 +146,25 @@ export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
     this.destroyChart();
 
     this.chart = new Chart(this.chartCanvas.nativeElement, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels,
         datasets: [
           {
             label: 'Energy Consumption (kWh)',
             data: values,
-            tension: 0.35,
-            borderWidth: 2,
-            pointRadius: 3,
-            fill: false
+            borderWidth: 1,
+            borderRadius: 8,
+            maxBarThickness: 46
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 250
+        },
         interaction: {
           mode: 'index',
           intersect: false
@@ -159,6 +180,7 @@ export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
 
                 return [
                   `Energy: ${point.consumedKwh.toFixed(3)} kWh`,
+                  `Wh: ${point.consumedWh.toFixed(2)} Wh`,
                   `Cost: ${point.cost.toFixed(2)} сом`
                 ];
               }
@@ -177,6 +199,11 @@ export class StatisticsPage implements OnInit, AfterViewInit, OnDestroy {
             title: {
               display: true,
               text: this.selectedPeriod === 'DAY' ? 'Hour' : 'Date'
+            },
+            ticks: {
+              autoSkip: true,
+              maxRotation: 45,
+              minRotation: 0
             }
           }
         }
