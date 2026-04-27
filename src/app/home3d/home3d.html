@@ -5,7 +5,7 @@
         <div class="board__pill">3D</div>
         <div>
           <div class="board__h">Home Model</div>
-          <div class="board__sub">Rotate • Zoom • Click device</div>
+          <div class="board__sub">Click device to toggle</div>
         </div>
       </div>
     </header>
@@ -14,10 +14,7 @@
       @if (!isLoadingRooms() && currentRoom()) {
         <app-home-scene
           [roomLayout]="currentRoom()"
-          [roomLight]="currentRoomLight"
           (deviceSelected)="onDeviceSelected($event)"
-          (selectionCleared)="onSelectionCleared()"
-          (roomLoaded)="onRoomLoaded()"
         ></app-home-scene>
       } @else {
         <div class="rooms__status">Loading room...</div>
@@ -29,20 +26,6 @@
     <div class="rooms">
       <div class="rooms__title">Rooms</div>
 
-      @if (isLoadingRooms()) {
-        <div class="rooms__status">Loading rooms...</div>
-      }
-
-      @if (errorMessage()) {
-        <div class="rooms__status rooms__status--error">
-          {{ errorMessage() }}
-        </div>
-      }
-
-      @if (!isLoadingRooms() && !errorMessage() && rooms().length === 0) {
-        <div class="rooms__status">No rooms found</div>
-      }
-
       @for (room of rooms(); track room.roomId) {
         <button
           class="room-btn"
@@ -53,16 +36,19 @@
         </button>
       }
     </div>
-
-    <div class="panel__body">
-      <app-device-panel-host
-        [panel]="panel"
-        [selectedObject]="selectedObject"
-        (fridgeTempChange)="changeFridgeTemp($event)"
-        (stoveTempChange)="changeStoveTemp($event)"
-        (lampToggle)="toggleLamp()"
-        (lampColorChange)="setLampColor($event)"
-      ></app-device-panel-host>
-    </div>
   </aside>
+
+  <div class="device-card" *ngIf="showDeviceCard">
+    <div class="device-card__title">
+      {{ selectedDeviceName }}
+    </div>
+
+    <div
+      class="device-card__status"
+      [class.on]="selectedDeviceState"
+      [class.off]="!selectedDeviceState"
+    >
+      {{ selectedDeviceState ? 'ON' : 'OFF' }}
+    </div>
+  </div>
 </div>

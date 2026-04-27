@@ -15,7 +15,6 @@ import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
 
 import { SceneSelectionService } from '../services/scene-selection.service';
-import { RoomLightConfig } from '../panels/shared/panel-models';
 import { DeviceModelLoaderService } from '../services/device-model-loader.service';
 import { RoomLayoutItem, RoomLayoutResponse } from '../models/room-layout.models';
 
@@ -31,7 +30,6 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
   canvasHost!: ElementRef<HTMLDivElement>;
 
   @Input() roomLayout: RoomLayoutResponse | null = null;
-  @Input() roomLight!: RoomLightConfig;
 
   @Output() deviceSelected = new EventEmitter<THREE.Object3D>();
   @Output() selectionCleared = new EventEmitter<void>();
@@ -83,10 +81,6 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.isReady) return;
 
-    if (changes['roomLight']) {
-      this.applyRoomLight();
-    }
-
     if (changes['roomLayout'] && this.roomLayout) {
       void this.loadRoomFromLayout();
     }
@@ -130,7 +124,6 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.controls.target.set(0, 1.2, 0);
 
     this.createLights();
-    this.applyRoomLight();
   }
 
   private createLights(): void {
@@ -148,22 +141,7 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.scene.userData['sunLight'] = directional;
   }
 
-  private applyRoomLight(): void {
-    if (!this.scene || !this.roomLight) return;
 
-    const sun = this.scene.userData['sunLight'] as THREE.DirectionalLight | undefined;
-
-    if (!sun) return;
-
-    sun.color.set(this.roomLight.color);
-    sun.intensity = this.roomLight.directionalOn ?? 1.5;
-
-    this.scene.userData['ambientOff'] = this.roomLight.ambientOff;
-    this.scene.userData['ambientOn'] = this.roomLight.ambientOn;
-    this.scene.userData['sunOff'] = this.roomLight.directionalOff;
-    this.scene.userData['sunOn'] = this.roomLight.directionalOn;
-    this.scene.userData['roomLightColor'] = this.roomLight.color;
-  }
 
   private async loadRoomFromLayout(): Promise<void> {
     if (!this.roomLayout) {
