@@ -23,11 +23,6 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'insights',
-    loadComponent: () => import('./insights/insights').then(m => m.Insights),
-    canActivate: [authGuard]
-  },
-  {
     path: 'home3d',
     loadComponent: () => import('./home3d/home3d').then(m => m.Home3d),
     canActivate: [authGuard]
