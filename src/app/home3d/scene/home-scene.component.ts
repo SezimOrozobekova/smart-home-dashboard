@@ -87,7 +87,10 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.rafId) cancelAnimationFrame(this.rafId);
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+    }
+
     this.controls?.dispose();
     this.renderer?.dispose();
     this.resizeObs?.disconnect();
@@ -135,13 +138,9 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     directional.castShadow = true;
     directional.shadow.mapSize.width = 2048;
     directional.shadow.mapSize.height = 2048;
+
     this.scene.add(directional);
-
-    this.scene.userData['ambientLight'] = ambient;
-    this.scene.userData['sunLight'] = directional;
   }
-
-
 
   private async loadRoomFromLayout(): Promise<void> {
     if (!this.roomLayout) {
@@ -171,7 +170,7 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     if (renderVersion === this.layoutRenderVersion) {
-      this.roomLoaded.emit();
+      this.zone.run(() => this.roomLoaded.emit());
     }
   }
 
@@ -197,6 +196,7 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
       color: '#dbe3ea',
       side: THREE.DoubleSide
     });
+
     const wallHeight = 4;
 
     const backWall = new THREE.Mesh(
@@ -233,6 +233,7 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     object.userData['deviceId'] = item.deviceId;
     object.userData['deviceTypeId'] = item.deviceTypeId;
     object.userData['type'] = typeCode;
+    object.userData['isOn'] = item.isActive;
 
     object.position.set(item.positionX, item.positionY, item.positionZ);
     object.rotation.set(item.rotationX, item.rotationY, item.rotationZ);
@@ -254,23 +255,8 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
       object.add(light);
       object.add(light.target);
 
-      object.userData['isOn'] = item.isActive;
       object.userData['light'] = light;
       object.userData['defaultIntensity'] = 18;
-    }
-
-    if (typeCode === 'fridge') {
-      object.userData['temperature'] = 4;
-      object.userData['minTemp'] = -5;
-      object.userData['maxTemp'] = 10;
-    }
-
-    if (typeCode === 'stove') {
-      object.userData['temperature'] = 120;
-    }
-
-    if (typeCode === 'kettle') {
-      object.userData['timeLeft'] = 120;
     }
 
     object.traverse((child) => {
@@ -300,7 +286,7 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     );
   }
 
-  private onPointerDown = (ev: PointerEvent) => {
+  private onPointerDown = (ev: PointerEvent): void => {
     const rect = this.renderer.domElement.getBoundingClientRect();
 
     this.mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
@@ -313,23 +299,28 @@ export class HomeSceneComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.sceneSelection.clearAllHighlights(this.scene);
 
     if (hits.length === 0) {
-      this.clearSelection();
+      this.zone.run(() => this.clearSelection());
       return;
     }
 
     const device = this.sceneSelection.findDeviceRoot(hits[0].object);
 
     if (!device) {
-      this.clearSelection();
+      this.zone.run(() => this.clearSelection());
       return;
     }
 
     this.sceneSelection.highlightObject(device);
-    this.deviceSelected.emit(device);
+
+    this.zone.run(() => {
+      this.deviceSelected.emit(device);
+    });
   };
 
   private clearSelection(): void {
-    if (!this.scene) return;
+    if (!this.scene) {
+      return;
+    }
 
     this.sceneSelection.clearAllHighlights(this.scene);
     this.selectionCleared.emit();

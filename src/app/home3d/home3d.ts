@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
 
@@ -18,6 +18,7 @@ type DeviceCardStatus = 'ON' | 'OFF' | 'PENDING' | 'UNKNOWN';
 export class Home3d implements OnInit {
   private readonly layoutStore = inject(Home3dLayoutStore);
   private readonly deviceControl = inject(DeviceControlService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly rooms = computed(() => this.layoutStore.rooms());
   readonly currentRoom = computed(() => this.layoutStore.currentRoom());
@@ -60,6 +61,7 @@ export class Home3d implements OnInit {
     this.selectedDeviceStatus = 'PENDING';
     this.showDeviceCard = true;
     this.clearHideTimer();
+    this.cdr.detectChanges();
 
     this.applyVisualState(device, desiredOn);
 
@@ -71,26 +73,26 @@ export class Home3d implements OnInit {
         } else {
           this.selectedDeviceStatus = 'UNKNOWN';
         }
+
+        this.cdr.detectChanges();
       })
       .catch((err) => {
         console.error('Failed to toggle device:', err);
 
         this.applyVisualState(device, previousState);
         this.selectedDeviceStatus = 'UNKNOWN';
+        this.cdr.detectChanges();
       })
       .finally(() => {
         this.pendingDeviceIds.delete(deviceId);
         this.scheduleHideDeviceCard();
+        this.cdr.detectChanges();
       });
   }
 
-  onSelectionCleared(): void {
-    // No panel to clear.
-  }
+  onSelectionCleared(): void {}
 
-  onRoomLoaded(): void {
-    // Reserved for future UI feedback.
-  }
+  onRoomLoaded(): void {}
 
   getDeviceCardSubtitle(): string {
     switch (this.selectedDeviceStatus) {
@@ -120,12 +122,14 @@ export class Home3d implements OnInit {
 
     this.hideCardTimer = setTimeout(() => {
       this.showDeviceCard = false;
+      this.cdr.detectChanges();
     }, 3000);
   }
 
   private hideDeviceCard(): void {
     this.clearHideTimer();
     this.showDeviceCard = false;
+    this.cdr.detectChanges();
   }
 
   private clearHideTimer(): void {
