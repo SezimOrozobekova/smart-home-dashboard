@@ -15,6 +15,8 @@
         <app-home-scene
           [roomLayout]="currentRoom()"
           (deviceSelected)="onDeviceSelected($event)"
+          (selectionCleared)="onSelectionCleared()"
+          (roomLoaded)="onRoomLoaded()"
         ></app-home-scene>
       } @else {
         <div class="rooms__status">Loading room...</div>
@@ -26,6 +28,20 @@
     <div class="rooms">
       <div class="rooms__title">Rooms</div>
 
+      @if (isLoadingRooms()) {
+        <div class="rooms__status">Loading rooms...</div>
+      }
+
+      @if (errorMessage()) {
+        <div class="rooms__status rooms__status--error">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      @if (!isLoadingRooms() && !errorMessage() && rooms().length === 0) {
+        <div class="rooms__status">No rooms found</div>
+      }
+
       @for (room of rooms(); track room.roomId) {
         <button
           class="room-btn"
@@ -36,19 +52,40 @@
         </button>
       }
     </div>
+
+    <div class="panel__body">
+      <div class="hint-card">
+        <div class="hint-title">Device control</div>
+        <div class="hint-text">
+          Click any device in the 3D room to toggle it on or off.
+        </div>
+      </div>
+    </div>
   </aside>
 
-  <div class="device-card" *ngIf="showDeviceCard">
-    <div class="device-card__title">
-      {{ selectedDeviceName }}
+  <div
+    class="device-card"
+    *ngIf="showDeviceCard"
+    [class.status-on]="selectedDeviceStatus === 'ON'"
+    [class.status-off]="selectedDeviceStatus === 'OFF'"
+    [class.status-pending]="selectedDeviceStatus === 'PENDING'"
+    [class.status-unknown]="selectedDeviceStatus === 'UNKNOWN'"
+  >
+    <div class="device-card__top">
+      <div>
+        <div class="device-card__label">Device</div>
+        <div class="device-card__title">
+          {{ selectedDeviceName }}
+        </div>
+      </div>
+
+      <div class="device-card__badge">
+        {{ selectedDeviceStatus }}
+      </div>
     </div>
 
-    <div
-      class="device-card__status"
-      [class.on]="selectedDeviceState"
-      [class.off]="!selectedDeviceState"
-    >
-      {{ selectedDeviceState ? 'ON' : 'OFF' }}
+    <div class="device-card__subtitle">
+      {{ getDeviceCardSubtitle() }}
     </div>
   </div>
 </div>

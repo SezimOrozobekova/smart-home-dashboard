@@ -2,6 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, timeout } from 'rxjs';
 
+export type ToggleResultStatus = 'confirmed' | 'unknown';
+
+export interface ToggleResult {
+  desiredOn: boolean;
+  status: ToggleResultStatus;
+}
+
 type DeviceItem = {
   id: string;
   isOn: boolean;
@@ -18,70 +25,94 @@ type RoomDevices = {
   providedIn: 'root'
 })
 export class DeviceControlService {
-  private http = inject(HttpClient);
-  private api = '/api';
+  private readonly http = inject(HttpClient);
+  private readonly api = '/api';
 
   private readonly freshnessWindowMs = 20_000;
 
-  async toggleById(deviceId: string, desiredOn: boolean): Promise<boolean> {
+  async toggleById(deviceId: string, desiredOn: boolean): Promise<ToggleResult> {
     await firstValueFrom(
       this.http.post(`${this.api}/device-states/${deviceId}/power`, {
         on: desiredOn
       })
     );
 
-    const confirmed = await this.pollUntilMatches(deviceId, desiredOn);
+    const confirmed = await this.pollUntilDeviceStateMatches(deviceId, desiredOn);
 
-    return confirmed ? desiredOn : desiredOn;
+    return {
+      desiredOn,
+      status: confirmed ? 'confirmed' : 'unknown'
+    };
   }
 
-  private async pollUntilMatches(deviceId: string, desiredOn: boolean): Promise<boolean> {
+  private async pollUntilDeviceStateMatches(
+    deviceId: string,
+    desiredOn: boolean
+  ): Promise<boolean> {
     const delays = [400, 700, 1000, 1500, 2200];
+    const requestTimeoutMs = 4000;
 
     for (const delay of delays) {
       await this.wait(delay);
 
       try {
-        const rooms = await this.fetchDevices();
-        const device = this.findDevice(rooms, deviceId);
+        const rooms = await this.fetchDevicesByRoom(requestTimeoutMs);
+        const device = this.findDeviceById(rooms, deviceId);
 
-        if (device && this.isDesiredFresh(device, desiredOn)) {
+        if (device && this.isDesiredStateFresh(device, desiredOn)) {
           return true;
         }
-      } catch (e) {
-        console.error('poll error', e);
+      } catch (err) {
+        console.error('Failed to refresh devices during polling:', err);
       }
     }
 
     return false;
   }
 
-  private async fetchDevices(): Promise<RoomDevices[]> {
+  private async fetchDevicesByRoom(requestTimeoutMs: number): Promise<RoomDevices[]> {
     return await firstValueFrom(
-      this.http.get<RoomDevices[]>(`${this.api}/homes/devices-by-room`)
-        .pipe(timeout(4000))
+      this.http.get<RoomDevices[]>(`${this.api}/homes/devices-by-room`).pipe(
+        timeout(requestTimeoutMs)
+      )
     );
   }
 
-  private findDevice(rooms: RoomDevices[], id: string): DeviceItem | null {
-    for (const r of rooms) {
-      const d = r.devices.find(x => x.id === id);
-      if (d) return d;
+  private findDeviceById(rooms: RoomDevices[], deviceId: string): DeviceItem | null {
+    for (const room of rooms) {
+      const found = room.devices.find((device) => device.id === deviceId);
+
+      if (found) {
+        return found;
+      }
     }
+
     return null;
   }
 
-  private isDesiredFresh(device: DeviceItem, desiredOn: boolean): boolean {
-    if (device.isOn !== desiredOn) return false;
-    if (!device.updatedAt) return false;
+  private isDesiredStateFresh(device: DeviceItem, desiredOn: boolean): boolean {
+    if (device.isOn !== desiredOn) {
+      return false;
+    }
 
-    const t = new Date(device.updatedAt).getTime();
-    if (Number.isNaN(t)) return false;
-
-    return Date.now() - t <= this.freshnessWindowMs;
+    return this.isFresh(device.updatedAt);
   }
 
-  private wait(ms: number) {
-    return new Promise(res => setTimeout(res, ms));
+  private isFresh(updatedAt: string | null): boolean {
+    if (!updatedAt) {
+      return false;
+    }
+
+    const updatedTime = new Date(updatedAt).getTime();
+
+    if (Number.isNaN(updatedTime)) {
+      return false;
+    }
+
+    return Date.now() - updatedTime <= this.freshnessWindowMs;
+  }
+
+  private wait(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
