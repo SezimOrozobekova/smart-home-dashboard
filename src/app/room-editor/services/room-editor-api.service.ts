@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
-import { EditorModelItem } from './room-editor-models';
+import {EditorModelItem, RoomLayoutItem, SaveLayoutItem} from './room-editor-models';
 
 interface DeviceTypeResponse {
   id: string;
@@ -18,7 +18,7 @@ interface DeviceTypeResponse {
 export interface SaveLayoutRequest {
   roomWidth: number;
   roomDepth: number;
-  items: any[];
+  items: SaveLayoutItem[];
 }
 
 export interface RoomLayoutResponse {
@@ -26,7 +26,7 @@ export interface RoomLayoutResponse {
   roomName: string;
   roomWidth: number;
   roomDepth: number;
-  items: any[];
+  items: RoomLayoutItem[];
 }
 
 @Injectable({

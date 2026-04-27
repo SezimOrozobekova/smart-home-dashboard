@@ -403,6 +403,7 @@ export class RoomEditorSceneService {
       roomWidth: this.roomWidth,
       roomDepth: this.roomDepth,
       items: this.placedObjects.map((obj) => ({
+        deviceId: obj.userData['deviceId'] ?? null,
         deviceTypeId: obj.userData['deviceTypeId'],
         name: obj.userData['deviceName'],
 
